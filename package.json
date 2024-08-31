@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.6.0",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint . --fix"
+  }
+}

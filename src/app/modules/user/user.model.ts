@@ -1,0 +1,63 @@
+import mongoose, { Schema, Document } from 'mongoose';
+import { TGender, TName, TRegistrationOption, TRole } from './user.interface';
+
+const nameSchema = new Schema<TName>({
+  first_name: {
+    type: String,
+    required: true,
+  },
+  middle_name: {
+    type: String,
+    default: null,
+  },
+  last_name: {
+    type: String,
+    required: true,
+  },
+});
+
+const userSchema = new Schema({
+  name: {
+    type: nameSchema,
+    required: true,
+  },
+  date_of_birth: {
+    type: String,
+    required: true,
+  },
+  gender: {
+    type: String,
+    enum: Object.values(TGender),
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  password: {
+    type: String,
+    default: null,
+  },
+  role: {
+    type: String,
+    enum: Object.values(TRole),
+    required: true,
+  },
+  is_blocked: {
+    type: Boolean,
+    default: false,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+  registered_by: {
+    type: String,
+    enum: Object.values(TRegistrationOption),
+    required: true,
+  },
+});
+
+export const User = mongoose.model('User', userSchema);
