@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { TGender, TName, TRegistrationOption, TRole } from './user.interface';
 
-const nameSchema = new Schema<TName>({
+export const nameSchema = new Schema<TName>({
   first_name: {
     type: String,
     required: true,
@@ -38,6 +38,7 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
+    select:false,
     default: null,
   },
   role: {
@@ -58,6 +59,8 @@ const userSchema = new Schema({
     enum: Object.values(TRegistrationOption),
     required: true,
   },
+},{
+    timestamps:true
 });
 
 export const User = mongoose.model('User', userSchema);

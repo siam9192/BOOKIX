@@ -48,6 +48,8 @@ const paymentSchema = new Schema<TPayment>({
     ref: 'User',
     required: true,
   },
+},{
+    timestamps:true
 });
 
 export const Payment = model<TPayment>('Payment', paymentSchema);

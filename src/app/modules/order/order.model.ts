@@ -115,6 +115,8 @@ const orderSchema = new Schema<TOrder>({
     ref: 'User',
     required: true,
   },
+},{
+    timestamps:true
 });
 
 export const Order = mongoose.model<TOrder>('Order', orderSchema);

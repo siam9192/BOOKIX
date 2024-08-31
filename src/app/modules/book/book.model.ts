@@ -30,7 +30,7 @@ const AuthorBioSchema = new Schema<TAuthorBio>({
 const PublisherSchema = new Schema<TPublisher>({
   name: { type: String, required: true },
   address: { type: String, required: true },
-  website: { type: String },
+  website: { type: String,default:null },
 });
 
 const AdditionalInfoSchema = new Schema<TAdditionalInfo>({
@@ -65,6 +65,10 @@ const BookSchema = new Schema<TBook>({
   reviews: { type: Number, default: 0 },
   is_paused: { type: Boolean, default: false },
   is_deleted: { type: Boolean, default: false },
+},{
+  timestamps:true
 });
+
+BookSchema.index({name:1,description:1})
 
 export const Book = model<TBook>('Book', BookSchema);
