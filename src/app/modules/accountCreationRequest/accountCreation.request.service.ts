@@ -26,7 +26,7 @@ const initiateAccountCreation = async (payload: TAccountCreationRequest) => {
       'User is already exists on this email',
     );
   }
-
+  
    // Hashing password to secure it 
   payload.password = await bcryptHash(payload.password)
 
@@ -145,19 +145,19 @@ const resendOtp =  async (payload:{secret:string,requestTime:string})=>{
   }
 
   // Generating new otp code
-  const newOtp  = await bcryptHash(generateOTP(6))
+  const newOtp  =  generateOTP(6)
   
   // Hashing otp
   const hashedOtp = await bcryptHash(newOtp)
   // Updating otp 
-  const updatedAccountCreationRequest = await AccountCreationRequest.findOneAndUpdate({_id:new Types.ObjectId(decode.id),email:decode.email},{otp:newOtp},{new:true,runValidators:true})
+  const updatedAccountCreationRequest = await AccountCreationRequest.findOneAndUpdate({_id:new Types.ObjectId(decode.id),email:decode.email},{otp:hashedOtp},{new:true,runValidators:true})
   
   // Checking is otp updated successfully
   if(!updatedAccountCreationRequest){
     throw new AppError(400,"Something went wrong please try again")
   }
 
-  await sendEmailVerificationMail(updatedAccountCreationRequest.email,hashedOtp)
+  await sendEmailVerificationMail(updatedAccountCreationRequest.email,newOtp)
   return true
 }
 

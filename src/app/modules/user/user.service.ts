@@ -19,9 +19,7 @@ const createUserIntoDB = async(payload:TUser,registered_by: typeof TRegistration
             if(!payload.password){
                throw new AppError(httpStatus.NOT_ACCEPTABLE,"Can't be accepted with out password")
             }
-            // Hashing password
-            const password = await bcryptHash(payload.password!)
-            payload.password = password
+
             payload.registered_by = TRegistrationOption.EMAIL
 
             // Creating user

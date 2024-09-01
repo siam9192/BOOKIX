@@ -35,7 +35,7 @@ const login = async (payload: TSignInPayload) => {
     if (!user) {
       throw new AppError(httpStatus.NOT_FOUND, 'Account not found');
     }
-
+    
     // Comparing password
     const isMatched = await bcryptCompare(payload.password,user.password, );
     
@@ -48,12 +48,12 @@ const login = async (payload: TSignInPayload) => {
       id: user._id,
       role: user.role,
     }
+
+   
     // Generating access token
     const accessToken = await generateJwtToken(tokenPayload,config.jwt_access_secret as string,'30d')  
-    
     // Generating refresh token 
     const refreshToken = await generateJwtToken(tokenPayload,config.jwt_refresh_token_secret as string,config.jwt_refresh_token_expire_time as string)
-
     return {
       accessToken,
       refreshToken

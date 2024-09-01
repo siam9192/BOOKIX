@@ -8,7 +8,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken'
 import { User } from "../modules/user/user.model";
 
 
-async function Auth(...requiredRoles:TRoleUnion[]){
+ function auth(...requiredRoles:TRoleUnion[]){
     return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const token = req.headers.authorization;
     
@@ -77,4 +77,4 @@ async function Auth(...requiredRoles:TRoleUnion[]){
       });
 }
 
-export default Auth
+export default auth

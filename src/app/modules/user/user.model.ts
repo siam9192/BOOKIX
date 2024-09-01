@@ -37,7 +37,7 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    select:false,
+    select:0,
     default: null,
   },
   role: {

@@ -1,6 +1,6 @@
 import catchAsync from "../../utils/catchAsync";
 import {Request, Response} from 'express'
-import { AuthService } from "./auth.services";
+import { AuthService } from "./auth.service";
 import { sendSuccessResponse } from "../../utils/response";
 import httpStatus from "http-status";
 import config from "../../config";
@@ -46,8 +46,7 @@ const handelLogin = catchAsync(async(req:Request,res:Response)=>{
         statusCode: httpStatus.OK,
         message: 'Login in successful',
         data: {
-          accessToken: result.accessToken,
-          refreshToken:result.refreshToken
+          accessToken: result.accessToken
         },
       });
 })

@@ -1,4 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Types } from 'mongoose';
 
 export function generateOTP(length = 6) {
   const digits = '0123456789';
@@ -23,5 +24,7 @@ export const generateJwtToken = (
 export const verifyToken = (token: string, secret: string) => {
   return jwt.verify(token, secret);
 };
+
+export const objectId = (id:string)=> new Types.ObjectId(id)
 
 
