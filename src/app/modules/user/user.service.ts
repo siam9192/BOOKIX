@@ -14,7 +14,8 @@ const createUserIntoDB = async(payload:TUser,registered_by: typeof TRegistration
     switch (registered_by) {
         case TRegistrationOption.GOOGLE_AUTH:
             payload.registered_by =  TRegistrationOption.GOOGLE_AUTH
-            break;
+            return await User.create(payload)
+            break
         case TRegistrationOption.EMAIL:
             if(!payload.password){
                throw new AppError(httpStatus.NOT_ACCEPTABLE,"Can't be accepted with out password")
@@ -26,6 +27,7 @@ const createUserIntoDB = async(payload:TUser,registered_by: typeof TRegistration
             return await User.create(payload)
         default:
             break;
+        
     }
 }
 
