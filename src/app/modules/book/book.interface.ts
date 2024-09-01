@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type TPrice = {
   main_price: number;
   discount_price: number;
@@ -37,10 +39,10 @@ export type TBook = {
   price: TPrice; // Price of the book
   description: string; // Description or summary of the book
   author: string; // Name of the author
-  author_bio: TAuthorBio; // Detailed biography of the author
+  author_bio?:Types.ObjectId; // Detailed biography of the author
   category: string; // Genre or category of the book
   language: string; // Language in which the book is written
-  print_length: string; // Length of the book in pages
+  print_length: number; // Length of the book in pages
   published_date: string; // Publication date of the book
   edition: string; // Edition of the book
   isbn: string; // International Standard Book Number

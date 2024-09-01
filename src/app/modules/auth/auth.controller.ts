@@ -3,6 +3,7 @@ import {Request, Response} from 'express'
 import { AuthService } from "./auth.services";
 import { sendSuccessResponse } from "../../utils/response";
 import httpStatus from "http-status";
+import config from "../../config";
 
 const handelSignupRequest = catchAsync(async(req:Request,res:Response)=>{
     const result = await AuthService.signUpRequest(req.body)
@@ -33,8 +34,28 @@ const handelSignupVerify = catchAsync(async(req:Request,res:Response)=>{
 })
 
 
+const handelLogin = catchAsync(async(req:Request,res:Response)=>{
+    const result = await AuthService.login(req.body)
+    res.cookie('refresh-token', result.refreshToken, {
+        secure: false,
+        sameSite: true,
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 365,
+      });
+      sendSuccessResponse(res, {
+        statusCode: httpStatus.OK,
+        message: 'Login in successful',
+        data: {
+          accessToken: result.accessToken,
+          refreshToken:result.refreshToken
+        },
+      });
+})
+
+
 export const AuthController = {
     handelSignupRequest,
     handelResendRequest,
-    handelSignupVerify
+    handelSignupVerify,
+    handelLogin
 }

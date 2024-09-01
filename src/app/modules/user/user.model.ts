@@ -23,18 +23,17 @@ const userSchema = new Schema({
   },
   date_of_birth: {
     type: String,
-    required: true,
+    default:null,
   },
   gender: {
     type: String,
     enum: Object.values(TGender),
-    required: true,
+    default:null
   },
   email: {
     type: String,
     required: true,
-    unique: true,
-    trim: true,
+    unique: true
   },
   password: {
     type: String,

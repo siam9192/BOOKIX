@@ -4,7 +4,7 @@ import { TRegistrationOption, TUser } from "./user.interface";
 import { User } from "./user.model";
 import { bcryptHash } from "../../utils/bycrypt";
 
-const createUserIntoDB = async(payload:TUser,registered_by:keyof typeof TRegistrationOption)=>{
+const createUserIntoDB = async(payload:TUser,registered_by: typeof TRegistrationOption[keyof typeof TRegistrationOption])=>{
     const user = await User.findOne({email:payload.email});
     // Checking user existence
     if(user){
@@ -12,16 +12,18 @@ const createUserIntoDB = async(payload:TUser,registered_by:keyof typeof TRegistr
     }
     // Creating user account based on sign up type 
     switch (registered_by) {
-        case 'GOOGLE_AUTH':
-            payload.registered_by =  'GOOGLE_AUTH'
+        case TRegistrationOption.GOOGLE_AUTH:
+            payload.registered_by =  TRegistrationOption.GOOGLE_AUTH
             break;
-        case 'EMAIL':
+        case TRegistrationOption.EMAIL:
             if(!payload.password){
                throw new AppError(httpStatus.NOT_ACCEPTABLE,"Can't be accepted with out password")
             }
             // Hashing password
-            const password = bcryptHash(payload.password!)
-            payload.password
+            const password = await bcryptHash(payload.password!)
+            payload.password = password
+            payload.registered_by = TRegistrationOption.EMAIL
+
             // Creating user
             return await User.create(payload)
         default:

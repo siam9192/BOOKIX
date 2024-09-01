@@ -47,10 +47,10 @@ const BookSchema = new Schema<TBook>({
   price: { type: PriceSchema, required: true },
   description: { type: String, required: true },
   author: { type: String, required: true },
-  author_bio: { type: AuthorBioSchema, required: true },
+  author_bio: { type:Schema.Types.ObjectId, default:null },
   category: { type: String, required: true },
   language: { type: String, required: true },
-  print_length: { type: String, required: true },
+  print_length: { type: Number, required: true },
   published_date: { type: String, required: true },
   edition: { type: String, required: true },
   isbn: { type: String, required: true },
@@ -69,6 +69,6 @@ const BookSchema = new Schema<TBook>({
   timestamps:true
 });
 
-BookSchema.index({name:1,description:1})
+BookSchema.index({name:'text',description:'text',tags:'text',author:'text'})
 
 export const Book = model<TBook>('Book', BookSchema);

@@ -49,8 +49,17 @@ const login = async (payload: TSignInPayload) => {
       role: user.role,
     }
     // Generating access token
-    const token = await generateJwtToken(tokenPayload,config.jwt_access_secret as string,'30d')   
+    const accessToken = await generateJwtToken(tokenPayload,config.jwt_access_secret as string,'30d')  
+    
+    // Generating refresh token 
+    const refreshToken = await generateJwtToken(tokenPayload,config.jwt_refresh_token_secret as string,config.jwt_refresh_token_expire_time as string)
+
+    return {
+      accessToken,
+      refreshToken
+    }
 } 
+
 
 
 export const AuthService = {

@@ -39,6 +39,8 @@ export enum TRole {
   MODERATOR = 'Moderator',
   ADMIN = 'Admin',
 }
+export type TRoleUnion = typeof TRole[keyof typeof TRole]
+
 export enum TRegistrationOption {
   GOOGLE_AUTH = 'google_auth',
   EMAIL = 'email',
@@ -47,11 +49,11 @@ export enum TRegistrationOption {
 export type TUser = {
   name: TName;
   date_of_birth: string;
-  gender: keyof typeof TGender;
+  gender:typeof TGender[keyof typeof TGender];
   email: string;
   password?: string;
-  role: keyof typeof TRole;
+  role: typeof TRole[keyof typeof TRole]
   is_blocked?: boolean;
   isDeleted?: boolean;
-  registered_by: keyof typeof TRegistrationOption;
+  registered_by: typeof TRegistrationOption[keyof typeof TRegistrationOption];
 };

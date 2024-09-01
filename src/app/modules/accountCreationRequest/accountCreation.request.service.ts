@@ -14,6 +14,7 @@ import { AccountCreationRequest } from './accountCreation.request.model';
 import { sendEmailVerificationMail } from '../../utils/sendEmail';
 import { startSession, Types } from 'mongoose';
 import { UserService } from '../user/user.service';
+import { TRegistrationOption } from '../user/user.interface';
 
 const initiateAccountCreation = async (payload: TAccountCreationRequest) => {
   const user = await User.findOne({ email: payload.email });
@@ -80,6 +81,7 @@ const verifyOtpFromDB = async (payload: { secret: string; otp: string }) => {
   }
   const verifyOtp = await bcryptCompare(payload.otp,data.otp)
   
+  
   // Verifying otp 
   if(!verifyOtp){
     throw new AppError(httpStatus.NOT_ACCEPTABLE,'Wrong otp')
@@ -89,14 +91,14 @@ const verifyOtpFromDB = async (payload: { secret: string; otp: string }) => {
   session.startTransaction()
 
   const userData:any = {
-    name:data.email,
+    name:data.name,
     email:data.email,
     password:data.password,
     role:data.role
   }
   
   // Creating user after successfully verified
-  const createdUser =  await UserService.createUserIntoDB(userData,'EMAIL')
+  const createdUser =  await UserService.createUserIntoDB(userData,TRegistrationOption.EMAIL)
 
   // Deleting account request data
   await  AccountCreationRequest.deleteOne({_id:new Types.ObjectId(data._id),email:data.email},{session})
@@ -131,13 +133,13 @@ const resendOtp =  async (payload:{secret:string,requestTime:string})=>{
 
   // Checking request existence
   if(!accountCreationRequest){
-    throw new AppError(httpStatus.NOT_FOUND,"Something went wrong")
+    throw new AppError(httpStatus.NOT_FOUND,"Time expired")
   }
   
   // Difference between request time and previous otp send time 
   const difference = (new Date(payload.requestTime||new Date()).valueOf() -  new Date(accountCreationRequest.updatedAt).valueOf())/1000 
   
-  // If difference getter  than 120 seconds  than i  resend otp can not be possible
+  // If difference less  than 120 seconds  than  resend otp can not be possible
   if(difference<120){
     throw new AppError(httpStatus.NOT_ACCEPTABLE,"Can not be able to resend otp before 2 minutes ")
   }
@@ -155,7 +157,7 @@ const resendOtp =  async (payload:{secret:string,requestTime:string})=>{
     throw new AppError(400,"Something went wrong please try again")
   }
 
-  await sendEmailVerificationMail(updatedAccountCreationRequest.email,newOtp)
+  await sendEmailVerificationMail(updatedAccountCreationRequest.email,hashedOtp)
   return true
 }
 

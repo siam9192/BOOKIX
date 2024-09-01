@@ -33,7 +33,7 @@ const accountRequestSchema = new Schema<TAccountCreationRequest>(
   },
 );
 
-accountRequestSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 180 });
+accountRequestSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 300 });
 export const AccountCreationRequest = model<TAccountCreationRequest>(
   'AccountCreationRequest',
   accountRequestSchema,

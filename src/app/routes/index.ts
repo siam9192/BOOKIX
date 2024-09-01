@@ -1,5 +1,6 @@
 import { IRouter, Router } from "express";
 import { AuthRouter } from "../modules/auth/auth.route";
+import { BookRouter } from "../modules/book/book.router";
 
 const router = Router();
 
@@ -9,6 +10,10 @@ const moduleRoutes: TModuleRoutes = [
  {
   path:'/auth',
   router:AuthRouter
+ },
+ {
+  path:'/books',
+  router:BookRouter
  }
 ];
 const routes = moduleRoutes.map((route) =>
