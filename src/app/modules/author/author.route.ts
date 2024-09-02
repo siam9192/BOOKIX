@@ -7,13 +7,13 @@ import { AuthorController } from "./author.controller";
 
 const router = Router()
 
-router.post('/',auth(TRole.ADMIN,TRole.CUSTOMER),validateRequest(AuthorValidations.createAuthorValidation),AuthorController.createAuthor)
+router.post('/',auth(TRole.ADMIN,TRole.MODERATOR),validateRequest(AuthorValidations.createAuthorValidation),AuthorController.createAuthor)
 
 router.get('/',AuthorController.getAuthors)
 router.get('/:authorId',AuthorController.getAuthor)
 
-router.patch('/:authorId',validateRequest(AuthorValidations.updateAuthorValidation),AuthorController.updateAuthor)
+router.patch('/:authorId',auth(TRole.ADMIN,TRole.MODERATOR),validateRequest(AuthorValidations.updateAuthorValidation),AuthorController.updateAuthor)
 
-router.delete('/:authorId',AuthorController.deleteAuthor)
+router.delete('/:authorId',auth(TRole.ADMIN,TRole.MODERATOR),AuthorController.deleteAuthor)
 
 export const AuthorRouter = router

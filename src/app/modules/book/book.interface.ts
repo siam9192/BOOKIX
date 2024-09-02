@@ -53,6 +53,7 @@ export type TBook = {
   publisher: TPublisher; // Publisher information
   additional_info?: TAdditionalInfo; // Additional information about the book
   rating: number; // Average rating (e.g., out of 5)
+  available_stock:number,
   sold: number; // Number of copies sold
   reviews: number; // Number of reviews
   is_paused: boolean; // Indicates if the book's sales are paused

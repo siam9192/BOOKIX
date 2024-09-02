@@ -107,6 +107,17 @@ const getBooks =  catchAsync(async(req:Request,res:Response)=>{
          data:result
       })
      })
+
+     const getBooksBasedOnDiscount = catchAsync(async(req:Request,res:Response)=>{
+      const discount = req.params.percentage
+      const result = await BookService.getBooksBasedOnDiscountFromDB(discount)
+      sendSuccessResponse(res,{
+         statusCode:httpStatus.OK,
+         message:'Books retrieved  successfully based on discount',
+         data:result
+      })
+     })
+
    export const BookController = {
     createBook,
     createMultipleBooks,
@@ -118,7 +129,8 @@ const getBooks =  catchAsync(async(req:Request,res:Response)=>{
     updateBook,
     deleteBook,
     pauseBook,
-    unpauseBook
+    unpauseBook,
+    getBooksBasedOnDiscount
    }
    
    

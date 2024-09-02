@@ -105,9 +105,61 @@ return result
 
 }
 
+const getBooksBasedOnDiscountFromDB = async(discount:string)=>{
+    const discountNumber = Number(discount)
+   
+    if(!discountNumber){
+        throw new AppError(httpStatus.NOT_ACCEPTABLE,'Something went wrong')
+    }
+    const result = await Book.aggregate([
+        {
+            $match:{
+                'price.enable_discount_price':true,
+                is_paused:false,
+                is_deleted:false
+            }
+        },
+        {
+           $addFields:{
+            discount_percentage:{
+                $multiply:[
+                    {
+                        $divide:[
+                            {
+                            $subtract:['$price.main_price','$price.discount_price']
+                            },
+                            '$price.main_price'
+                        ]
+                    },
+                    100
+                ]
+            }
+           }
+        },
+        {
+            $match:{
+                discount_percentage:{$lte:discountNumber}
+            }
+        },
+        {
+            $project:{
+                name:1,
+                price:1,
+                cover_images:1,
+                rating:1,
+                discount_percentage:1
+            }
+        }
+    ])
+
+    return result
+}
+
 const getAuthorBooksFromDB  = async (authorId:string)=>{
     return await Book.find({author_bio:objectId(authorId)})
 }
+
+
 
 export const BookService = {
     createBookIntoDB,
@@ -120,5 +172,6 @@ export const BookService = {
     deleteBookFromDB,
     updateBookIntoDB,
     pauseBookIntoDB,
-    unpauseBookIntoDB
+    unpauseBookIntoDB,
+    getBooksBasedOnDiscountFromDB
 }
