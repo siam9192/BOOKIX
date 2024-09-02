@@ -4,6 +4,7 @@ import { TBook } from "./book.interface";
 import { Book } from "./book.model";
 import QueryBuilder from "../../middlewares/QueryBuilder";
 import { Types } from "mongoose";
+import { objectId } from "../../utils/func";
 
 const createBookIntoDB = async (payload:TBook)=>{
 // Creating book into db
@@ -104,6 +105,9 @@ return result
 
 }
 
+const getAuthorBooksFromDB  = async (authorId:string)=>{
+    return await Book.find({author_bio:objectId(authorId)})
+}
 
 export const BookService = {
     createBookIntoDB,

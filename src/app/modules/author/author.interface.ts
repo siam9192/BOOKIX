@@ -1,4 +1,4 @@
-export type TWriter = {
+export type TAuthor = {
   name: string; // Full name of the writer
   photo: string; //Photo of the writer
   biography: string; // Short biography of the writer

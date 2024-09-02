@@ -2,6 +2,7 @@ import { IRouter, Router } from "express";
 import { AuthRouter } from "../modules/auth/auth.route";
 import { BookRouter } from "../modules/book/book.router";
 import { CartRouter } from "../modules/cart/cart.route";
+import { AuthorRouter } from "../modules/author/author.route";
 
 const router = Router();
 
@@ -15,6 +16,10 @@ const moduleRoutes: TModuleRoutes = [
  {
   path:'/books',
   router:BookRouter
+ },
+ {
+  path:'/authors',
+  router:AuthorRouter
  },
  {
   path:'/carts',
