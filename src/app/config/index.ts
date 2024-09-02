@@ -20,6 +20,8 @@ export default {
   stripe_secret: process.env.STRIPE_SECRET,
   ssl_store_id: process.env.SSL_STORE_ID,
   ssl_store_password: process.env.SSL_STORE_PASSWORD,
+  paypal_id:process.env.PAYPAL_ID,
+  paypal_secret:process.env.PAYPAL_SECRET,
   payment_success_url: process.env.PAYMENT_SUCCESS_URL,
   payment_cancel_url: process.env.PAYMENT_CANCEL_URL,
   payment_success_redirect_url: process.env.PAYMENT_SUCCESS_REDIRECT_URL,

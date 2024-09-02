@@ -4,6 +4,7 @@ import { BookRouter } from '../modules/book/book.router';
 import { CartRouter } from '../modules/cart/cart.route';
 import { AuthorRouter } from '../modules/author/author.route';
 import { WishBookRouter } from '../modules/wishBook/wishBook.route';
+import { CouponRouter } from '../modules/coupon/coupon.route';
 
 const router = Router();
 
@@ -30,6 +31,10 @@ const moduleRoutes: TModuleRoutes = [
     path: '/wish-books',
     router: WishBookRouter,
   },
+  {
+    path:'/coupons',
+    router:CouponRouter
+  }
 ];
 const routes = moduleRoutes.map((route) =>
   router.use(route.path, route.router),
