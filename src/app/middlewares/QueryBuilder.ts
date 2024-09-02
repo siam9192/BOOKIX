@@ -28,7 +28,7 @@ class QueryBuilder<T> {
     for (let field of excludeFields) {
       delete queryObj[field];
     }
-    
+
     this.modelQuery = this.modelQuery.find({ ...queryObj });
     return this;
   }
@@ -40,23 +40,23 @@ class QueryBuilder<T> {
     this.modelQuery = this.modelQuery.sort(sort);
     return this;
   }
-  populate (path:string){
-    if(path){
-      this.modelQuery = this.modelQuery.populate(path)
+  populate(path: string) {
+    if (path) {
+      this.modelQuery = this.modelQuery.populate(path);
     }
-   return this
+    return this;
   }
-  get(){
-    return this.modelQuery
+  get() {
+    return this.modelQuery;
   }
-   
+
   paginate() {
     const page = Number(this.query.page) || 1;
     const limit = Number(this.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
-    return this
+    return this;
   }
   count() {
     this.modelQuery.countDocuments();

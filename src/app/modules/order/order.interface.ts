@@ -55,7 +55,7 @@ export type TOrder = {
   quantity: number;
   delivery_details: TDeliveryDetails;
   payment: Types.ObjectId;
-  status: typeof TOrderStatus[keyof typeof TOrderStatus];
+  status: (typeof TOrderStatus)[keyof typeof TOrderStatus];
   isReviewed?: boolean;
   user: Types.ObjectId;
 };

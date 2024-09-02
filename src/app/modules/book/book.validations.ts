@@ -1,5 +1,4 @@
-import { z } from "zod";
-
+import { z } from 'zod';
 
 // Price Schema
 const PriceSchema = z.object({
@@ -46,11 +45,11 @@ const createBookValidation = z.object({
   price: PriceSchema,
   description: z.string().min(20),
   author: z.string().min(1),
-  author_bio: z.string().nullable().optional(), 
+  author_bio: z.string().nullable().optional(),
   category: z.string().min(1),
   language: z.string().min(1),
   print_length: z.number().min(1),
-  published_date: z.string().min(1), 
+  published_date: z.string().min(1),
   edition: z.string().min(1),
   isbn: z.string().min(1),
   format: z.string().min(1),
@@ -58,14 +57,12 @@ const createBookValidation = z.object({
   tags: z.array(z.string()).optional(),
   cover_images: z.array(z.string()).optional(),
   publisher: PublisherSchema,
-  additional_info: AdditionalInfoSchema.optional()
+  additional_info: AdditionalInfoSchema.optional(),
 });
 
-
-const updateBookValidation = createBookValidation.partial()
-
+const updateBookValidation = createBookValidation.partial();
 
 export const BookValidations = {
-    createBookValidation,
-    updateBookValidation
-}
+  createBookValidation,
+  updateBookValidation,
+};

@@ -77,46 +77,49 @@ const deliveryDetailsSchema = new Schema<TDeliveryDetails>({
   },
 });
 
-const orderSchema = new Schema<TOrder>({
-  book: {
-    type: Schema.Types.ObjectId,
-    ref: 'Book',
-    required: true,
+const orderSchema = new Schema<TOrder>(
+  {
+    book: {
+      type: Schema.Types.ObjectId,
+      ref: 'Book',
+      required: true,
+    },
+    unit_price: {
+      type: Number,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      min: 0,
+      required: true,
+    },
+    delivery_details: {
+      type: deliveryDetailsSchema,
+      required: true,
+    },
+    payment: {
+      type: Schema.Types.ObjectId,
+      ref: 'Payment',
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: Object.values(TOrderStatus),
+      required: true,
+    },
+    isReviewed: {
+      type: Boolean,
+      default: false,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
-  unit_price: {
-    type: Number,
-    required: true,
+  {
+    timestamps: true,
   },
-  quantity: {
-    type: Number,
-    min: 0,
-    required: true,
-  },
-  delivery_details: {
-    type: deliveryDetailsSchema,
-    required: true,
-  },
-  payment: {
-    type: Schema.Types.ObjectId,
-    ref: 'Payment',
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: Object.values(TOrderStatus),
-    required: true,
-  },
-  isReviewed: {
-    type: Boolean,
-    default: false,
-  },
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-},{
-    timestamps:true
-});
+);
 
 export const Order = mongoose.model<TOrder>('Order', orderSchema);

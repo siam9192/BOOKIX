@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 
 export type TPrice = {
   main_price: number;
@@ -39,7 +39,7 @@ export type TBook = {
   price: TPrice; // Price of the book
   description: string; // Description or summary of the book
   author: string; // Name of the author
-  author_bio?:Types.ObjectId; // Detailed biography of the author
+  author_bio?: Types.ObjectId; // Detailed biography of the author
   category: string; // Genre or category of the book
   language: string; // Language in which the book is written
   print_length: number; // Length of the book in pages
@@ -53,9 +53,10 @@ export type TBook = {
   publisher: TPublisher; // Publisher information
   additional_info?: TAdditionalInfo; // Additional information about the book
   rating: number; // Average rating (e.g., out of 5)
-  available_stock:number,
+  available_stock: number; //Available stock of the book
+  free_delivery?: boolean; //Book delivery status without any charge
   sold: number; // Number of copies sold
   reviews: number; // Number of reviews
-  is_paused: boolean; // Indicates if the book's sales are paused
-  is_deleted: boolean; // Indicates if the book has been deleted from the catalog
+  is_paused?: boolean; // Indicates if the book's sales are paused
+  is_deleted?: boolean; // Indicates if the book has been deleted from the catalog
 };

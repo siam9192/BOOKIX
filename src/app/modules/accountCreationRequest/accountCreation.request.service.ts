@@ -1,11 +1,7 @@
 import httpStatus from 'http-status';
 import AppError from '../../Errors/AppError';
 import { User } from '../user/user.model';
-import {
-  generateJwtToken,
-  generateOTP,
-  verifyToken,
-} from '../../utils/func';
+import { generateJwtToken, generateOTP, verifyToken } from '../../utils/func';
 import config from '../../config';
 import { JwtPayload } from 'jsonwebtoken';
 import { bcryptCompare, bcryptHash } from '../../utils/bycrypt';
@@ -18,7 +14,7 @@ import { TRegistrationOption } from '../user/user.interface';
 
 const initiateAccountCreation = async (payload: TAccountCreationRequest) => {
   const user = await User.findOne({ email: payload.email });
-  
+
   // Checking user existence
   if (user) {
     throw new AppError(
@@ -26,31 +22,30 @@ const initiateAccountCreation = async (payload: TAccountCreationRequest) => {
       'User is already exists on this email',
     );
   }
-  
-   // Hashing password to secure it 
-  payload.password = await bcryptHash(payload.password)
 
-  // Generating otp 
+  // Hashing password to secure it
+  payload.password = await bcryptHash(payload.password);
+
+  // Generating otp
   const otp = generateOTP(6);
-  
-  // Hashing otp to secure it 
-  payload.otp = await bcryptHash(otp)
 
+  // Hashing otp to secure it
+  payload.otp = await bcryptHash(otp);
 
   // Saving account details minimum for 5 minute
   const result = await AccountCreationRequest.create(payload);
-  
+
   // after successfully saving the details sending the verification mail to the user given email
   if (result) {
-    await sendEmailVerificationMail(payload.email,otp);
+    await sendEmailVerificationMail(payload.email, otp);
   }
 
   const tokenPayload = {
-    id:result._id,
-    email: payload.email
+    id: result._id,
+    email: payload.email,
   };
 
-  // Generating jwt token for verify otp code 
+  // Generating jwt token for verify otp code
   const token = generateJwtToken(
     tokenPayload,
     config.jwt_ac_verify_secret as string,
@@ -63,7 +58,6 @@ const initiateAccountCreation = async (payload: TAccountCreationRequest) => {
 };
 
 const verifyOtpFromDB = async (payload: { secret: string; otp: string }) => {
-
   // Decoding jwt token
   const decode = verifyToken(
     payload.secret,
@@ -74,53 +68,57 @@ const verifyOtpFromDB = async (payload: { secret: string; otp: string }) => {
   }
 
   // Finding data
-  const data = await AccountCreationRequest.findOne({_id:new Types.ObjectId(decode.id),email: decode.email });
-  
-  if(!data){
-    throw new AppError(400,'Something went wrong')
-  }
-  const verifyOtp = await bcryptCompare(payload.otp,data.otp)
-  
-  
-  // Verifying otp 
-  if(!verifyOtp){
-    throw new AppError(httpStatus.NOT_ACCEPTABLE,'Wrong otp')
-  }
-  
-  const session = await startSession()
-  session.startTransaction()
+  const data = await AccountCreationRequest.findOne({
+    _id: new Types.ObjectId(decode.id),
+    email: decode.email,
+  });
 
-  const userData:any = {
-    name:data.name,
-    email:data.email,
-    password:data.password,
-    role:data.role
+  if (!data) {
+    throw new AppError(400, 'Something went wrong');
   }
-  
+  const verifyOtp = await bcryptCompare(payload.otp, data.otp);
+
+  // Verifying otp
+  if (!verifyOtp) {
+    throw new AppError(httpStatus.NOT_ACCEPTABLE, 'Wrong otp');
+  }
+
+  const session = await startSession();
+  session.startTransaction();
+
+  const userData: any = {
+    name: data.name,
+    email: data.email,
+    password: data.password,
+    role: data.role,
+  };
+
   // Creating user after successfully verified
-  const createdUser =  await UserService.createUserIntoDB(userData,TRegistrationOption.EMAIL)
+  const createdUser = await UserService.createUserIntoDB(
+    userData,
+    TRegistrationOption.EMAIL,
+  );
 
   // Deleting account request data
-  await  AccountCreationRequest.deleteOne({_id:new Types.ObjectId(data._id),email:data.email},{session})
-  
-  //When user creation is unsuccessful then 
-  if(!createdUser){
-    session.abortTransaction()
+  await AccountCreationRequest.deleteOne(
+    { _id: new Types.ObjectId(data._id), email: data.email },
+    { session },
+  );
+
+  //When user creation is unsuccessful then
+  if (!createdUser) {
+    session.abortTransaction();
+  } else {
+    session.commitTransaction();
+    return createdUser;
   }
-   
-  else {
-    session.commitTransaction()
-    return createdUser
-  }
-  
-  session.endSession()
-  throw new AppError(400,'Something went wrong')
-   
+
+  session.endSession();
+  throw new AppError(400, 'Something went wrong');
 };
 
-
-const resendOtp =  async (payload:{secret:string,requestTime:string})=>{
-   // Decoding jwt token
+const resendOtp = async (payload: { secret: string; requestTime: string }) => {
+  // Decoding jwt token
   const decode = verifyToken(
     payload.secret,
     config.jwt_ac_verify_secret as string,
@@ -128,41 +126,55 @@ const resendOtp =  async (payload:{secret:string,requestTime:string})=>{
   if (!decode) {
     throw new AppError(httpStatus.NOT_ACCEPTABLE, 'Invalid request');
   }
- 
-  const accountCreationRequest = await AccountCreationRequest.findOne({_id:new Types.ObjectId(decode.id),email:decode.email})
+
+  const accountCreationRequest = await AccountCreationRequest.findOne({
+    _id: new Types.ObjectId(decode.id),
+    email: decode.email,
+  });
 
   // Checking request existence
-  if(!accountCreationRequest){
-    throw new AppError(httpStatus.NOT_FOUND,"Time expired")
+  if (!accountCreationRequest) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Time expired');
   }
-  
-  // Difference between request time and previous otp send time 
-  const difference = (new Date(payload.requestTime||new Date()).valueOf() -  new Date(accountCreationRequest.updatedAt).valueOf())/1000 
-  
+
+  // Difference between request time and previous otp send time
+  const difference =
+    (new Date(payload.requestTime || new Date()).valueOf() -
+      new Date(accountCreationRequest.updatedAt).valueOf()) /
+    1000;
+
   // If difference less  than 120 seconds  than  resend otp can not be possible
-  if(difference<120){
-    throw new AppError(httpStatus.NOT_ACCEPTABLE,"Can not be able to resend otp before 2 minutes ")
+  if (difference < 120) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      'Can not be able to resend otp before 2 minutes ',
+    );
   }
 
   // Generating new otp code
-  const newOtp  =  generateOTP(6)
-  
+  const newOtp = generateOTP(6);
+
   // Hashing otp
-  const hashedOtp = await bcryptHash(newOtp)
-  // Updating otp 
-  const updatedAccountCreationRequest = await AccountCreationRequest.findOneAndUpdate({_id:new Types.ObjectId(decode.id),email:decode.email},{otp:hashedOtp},{new:true,runValidators:true})
-  
+  const hashedOtp = await bcryptHash(newOtp);
+  // Updating otp
+  const updatedAccountCreationRequest =
+    await AccountCreationRequest.findOneAndUpdate(
+      { _id: new Types.ObjectId(decode.id), email: decode.email },
+      { otp: hashedOtp },
+      { new: true, runValidators: true },
+    );
+
   // Checking is otp updated successfully
-  if(!updatedAccountCreationRequest){
-    throw new AppError(400,"Something went wrong please try again")
+  if (!updatedAccountCreationRequest) {
+    throw new AppError(400, 'Something went wrong please try again');
   }
 
-  await sendEmailVerificationMail(updatedAccountCreationRequest.email,newOtp)
-  return true
-}
+  await sendEmailVerificationMail(updatedAccountCreationRequest.email, newOtp);
+  return true;
+};
 
 export const AccountCreationRequestService = {
   initiateAccountCreation,
   verifyOtpFromDB,
-  resendOtp
+  resendOtp,
 };

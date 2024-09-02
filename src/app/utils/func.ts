@@ -25,6 +25,4 @@ export const verifyToken = (token: string, secret: string) => {
   return jwt.verify(token, secret);
 };
 
-export const objectId = (id:string)=> new Types.ObjectId(id)
-
-
+export const objectId = (id: string) => new Types.ObjectId(id);

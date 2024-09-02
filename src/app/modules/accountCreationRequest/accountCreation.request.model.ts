@@ -29,7 +29,6 @@ const accountRequestSchema = new Schema<TAccountCreationRequest>(
   },
   {
     timestamps: true,
-
   },
 );
 
