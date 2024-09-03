@@ -5,6 +5,7 @@ import { CartRouter } from '../modules/cart/cart.route';
 import { AuthorRouter } from '../modules/author/author.route';
 import { WishBookRouter } from '../modules/wishBook/wishBook.route';
 import { CouponRouter } from '../modules/coupon/coupon.route';
+import { OrderRouter } from '../modules/order/order.route';
 
 const router = Router();
 
@@ -34,6 +35,10 @@ const moduleRoutes: TModuleRoutes = [
   {
     path:'/coupons',
     router:CouponRouter
+  },
+  {
+    path:'/orders',
+    router: OrderRouter
   }
 ];
 const routes = moduleRoutes.map((route) =>

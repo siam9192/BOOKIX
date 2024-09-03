@@ -72,16 +72,8 @@ const changeUserBlockStatusIntoDB = async (payload:{userId:string,status:boolean
   return await User.findByIdAndUpdate(payload.userId,{is_blocked:payload.status})
 }
 
-const changeUserRoleIntoDB = async (userRole:string,payload:{userId:string,role:TRole})=>{
-
-  // Moderator can not  change admin and moderator role
-  if(userRole === TRole.MODERATOR && payload.role === TRole.ADMIN){
-    throw new AppError(httpStatus.NOT_ACCEPTABLE,"It can not possible by  Moderator to change admin role ")
-  }
-  else if(userRole === TRole.MODERATOR && payload.role === TRole.MODERATOR){
-    throw new AppError(httpStatus.NOT_ACCEPTABLE,"It can not possible by  Moderator to change Moderator role ")
-  }
-
+const changeUserRoleIntoDB = async (payload:{userId:string,role:TRole})=>{
+  
   return await User.findByIdAndUpdate(payload.userId,{role:payload.role})
 }
 

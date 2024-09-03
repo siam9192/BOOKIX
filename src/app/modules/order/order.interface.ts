@@ -29,8 +29,7 @@ type TBillingDetails = {
   billing_address: TBillingAddress;
 };
 
-export // 4. Delivery Details
-type TDeliveryDetails = {
+export type TDeliveryDetails = {
   recipient: TRecipient;
   delivery_address: TDeliveryAddress;
   billing_details?: TBillingDetails;
@@ -56,6 +55,7 @@ export type TOrder = {
   delivery_details: TDeliveryDetails;
   payment: Types.ObjectId;
   status: (typeof TOrderStatus)[keyof typeof TOrderStatus];
-  isReviewed?: boolean;
+  // is_paid:
+  is_reviewed?: boolean;
   user: Types.ObjectId;
 };

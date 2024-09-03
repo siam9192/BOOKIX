@@ -10,11 +10,11 @@ import {
 
 const contactSchema = new Schema<TContact>({
   name: {
-    firstName: {
+    first_name: {
       type: String,
       required: true,
     },
-    lastName: {
+    last_name: {
       type: String,
       required: true,
     },
@@ -105,7 +105,7 @@ const orderSchema = new Schema<TOrder>(
     status: {
       type: String,
       enum: Object.values(TOrderStatus),
-      required: true,
+      default:TOrderStatus.PENDING
     },
     isReviewed: {
       type: Boolean,

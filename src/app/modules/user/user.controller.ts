@@ -1,9 +1,50 @@
-import { TUser } from './user.interface';
-import { User } from './user.model';
+import httpStatus from 'http-status';
+import { Request,Response } from 'express';
+import { UserService } from './user.service';
+import { sendSuccessResponse } from '../../utils/response';
+import catchAsync from '../../utils/catchAsync';
 
-const createUserIntoDB = (payload: TUser) => {
-  const user = User.findOne({ email: payload.email });
-  if (!user) {
-    // throw new
-  }
-};
+
+
+const getUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getUsers(req.query)
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Users retrieved successfully',
+    data: result,
+  });
+});
+const getUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getUser(req.params.userId)
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Users retrieved successfully',
+    data: result,
+  });
+});
+
+
+const changeUserBlockStatusIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.changeUserBlockStatusIntoDB(req.body)
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'User block status changed successfully successfully',
+    data: result,
+  });
+});
+
+const changeUserRole = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.changeUserRoleIntoDB(req.body)
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'User role changed successfully successfully',
+    data: result,
+  });
+});
+
+export const UserController = {
+  getUsers,
+  getUser,
+  changeUserBlockStatusIntoDB,
+  changeUserRole
+}

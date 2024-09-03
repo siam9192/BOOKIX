@@ -1,9 +1,32 @@
 import { model, Schema } from 'mongoose';
 import { TPayment, TPaymentMethod } from './payment.interface';
 
+const amountSchema = new Schema({
+  subtotal: {
+    type: Number,
+    required: true,
+  },
+  delivery_charge: {
+    type: Number,
+    min: 0,
+    required: true,
+  },
+ 
+
+  discount: {
+    type: Number,
+    min: 0,
+    default: 0,
+  },
+  total: {
+    type: Number,
+    required: true,
+  }
+})
+
 const paymentSchema = new Schema<TPayment>(
   {
-    trx_id: {
+    transaction_id: {
       type: String,
       required: true,
     },
@@ -12,25 +35,10 @@ const paymentSchema = new Schema<TPayment>(
       enum: Object.values(TPaymentMethod),
       required: true,
     },
-    total: {
-      type: Number,
-      required: true,
-    },
-    delivery_charge: {
-      type: Number,
-      min: 0,
-      required: true,
-    },
-    vat: {
-      type: Number,
-      required: true,
-    },
-
-    discount: {
-      type: Number,
-      min: 0,
-      default: 0,
-    },
+   amount:{
+    type:amountSchema,
+    required:true
+   },
     coupon: {
       type: String,
       default: null,
@@ -39,15 +47,10 @@ const paymentSchema = new Schema<TPayment>(
       type: Boolean,
       default: false,
     },
-    order: {
-      type: Schema.Types.ObjectId,
-      ref: 'Order',
-      required: true,
-    },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      default:null
     },
   },
   {

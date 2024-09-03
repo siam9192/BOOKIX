@@ -5,6 +5,7 @@ import { Book } from './book.model';
 import QueryBuilder from '../../middlewares/QueryBuilder';
 import { Types } from 'mongoose';
 import { objectId } from '../../utils/func';
+import { payWithPaypal } from '../../paymentMethods/paypal';
 
 const createBookIntoDB = async (payload: TBook) => {
   // Creating book into db
@@ -165,6 +166,10 @@ const getBooksBasedOnDiscountFromDB = async (discount: string) => {
 const getAuthorBooksFromDB = async (authorId: string) => {
   return await Book.find({ author_bio: objectId(authorId) });
 };
+const pay = ()=>{
+ 
+  payWithPaypal()
+}
 
 export const BookService = {
   createBookIntoDB,
@@ -179,4 +184,5 @@ export const BookService = {
   pauseBookIntoDB,
   unpauseBookIntoDB,
   getBooksBasedOnDiscountFromDB,
+  pay
 };

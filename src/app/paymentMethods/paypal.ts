@@ -7,7 +7,7 @@ paypal.configure({
     client_secret:config.paypal_secret as string
 })
 
-const payWithPaypal = ()=>{
+export const payWithPaypal = ()=>{
     const paymentJson:any = {
         intent: 'sale',
         payer: {
@@ -27,10 +27,12 @@ const payWithPaypal = ()=>{
       };
       paypal.payment.create(paymentJson, (error, payment) => {
         if (error) {
-        
+        console.log(error)
         } else {
-            // console.log(payment.links[1].href)
-         
+       if(payment?.links){
+        console.log(payment?.links[1]?.href)
+
+       }         
         }
       });
       
