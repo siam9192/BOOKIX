@@ -1,10 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const createWiseBookValidation = z.object({
-    bookId:z.string()
-})
-
+  bookId: z.string(),
+});
 
 export const WiseBookValidations = {
-    createWiseBookValidation
-}
+  createWiseBookValidation,
+};

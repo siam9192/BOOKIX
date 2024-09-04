@@ -166,10 +166,9 @@ const getBooksBasedOnDiscountFromDB = async (discount: string) => {
 const getAuthorBooksFromDB = async (authorId: string) => {
   return await Book.find({ author_bio: objectId(authorId) });
 };
-const pay = ()=>{
- 
-  payWithPaypal()
-}
+const pay = () => {
+  payWithPaypal();
+};
 
 export const BookService = {
   createBookIntoDB,
@@ -184,5 +183,5 @@ export const BookService = {
   pauseBookIntoDB,
   unpauseBookIntoDB,
   getBooksBasedOnDiscountFromDB,
-  pay
+  pay,
 };

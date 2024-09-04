@@ -1,39 +1,96 @@
 import paypal from 'paypal-rest-sdk';
 import config from '../config';
+import { Response } from 'express';
 
 paypal.configure({
-    mode:'sandbox',
-    client_id:config.paypal_id as string,
-    client_secret:config.paypal_secret as string
-})
+  mode: 'sandbox',
+  client_id: config.paypal_id as string,
+  client_secret: config.paypal_secret as string,
+});
 
-export const payWithPaypal = ()=>{
-    const paymentJson:any = {
-        intent: 'sale',
-        payer: {
-          payment_method: 'paypal'
+export const pay = async(res:Response,amount:number,paymentId:string) => {
+  const paymentJson: any = {
+    intent: 'sale',
+    payer: {
+      payment_method: 'paypal',
+    },
+    redirect_urls: {
+      return_url: `http://localhost:5000/api/v1/orders/payment/paypal/success?orderPaymentId=${paymentId}`,
+      cancel_url: 'http://localhost:5000/payment/api/v1/paypal/cancel',
+    },
+    transactions: [
+      {
+        amount: {
+          total: amount,
+          currency: 'USD',
         },
-        redirect_urls: {
-          return_url: 'http://localhost:3000/success',
-          cancel_url: 'http://localhost:3000/cancel'
-        },
-        transactions: [{
-          amount: {
-            total:100,
-            currency: 'USD'
-          },
-          description: 'Payment description'
-        }]
-      };
-      paypal.payment.create(paymentJson, (error, payment) => {
-        if (error) {
-        console.log(error)
-        } else {
-       if(payment?.links){
-        console.log(payment?.links[1]?.href)
-
-       }         
+        description: 'Your order will be placed after after the payment',
+      },
+    ],
+  };
+  
+  paypal.payment.create(paymentJson, (error, payment) => {
+    if (error) {
+     throw new Error()
+    } else {
+      if (payment?.links) {
+       payment.links.forEach(link=>{
+        if(link.rel === 'approval_url'){
+        res.send(link.href)
         }
-      });
-      
+       })
+      }
+    }
+  });
+ 
+};
+
+
+const executePayment = async(paymentId:string,payerId:string,callFun:(saleId:string)=>void|any)=>{
+paypal.payment.execute(paymentId,{payer_id:payerId},function(error,payment:any){
+if(error){
+  throw new Error()
+}
+else {
+  console.log('Payment successful')
+  const paymentTransactions = payment.transactions[0]
+  if(paymentTransactions && paymentTransactions.related_resources?.length){
+    const saleId = paymentTransactions.related_resources[0].sale.id
+    if(saleId){
+      callFun(saleId)
+    }
+  }
+}
+})
+}
+
+
+const refund = (saleId:string,amount:number)=>{
+  
+  const data = {
+    amount:{
+      total:amount.toFixed(2),
+      currency:'USD'
+    }
+  }
+ try {
+  paypal.sale.refund(saleId,data,function(error,refund){
+    if(error){
+      // throw new Error()
+      console.log(error)
+    }
+    else {
+     console.log("Refund success full")
+    }
+  })
+  
+ } catch (error) {
+  console.log(error)
+ }
+}
+
+export const Paypal = {
+  pay,
+  executePayment,
+  refund
 }

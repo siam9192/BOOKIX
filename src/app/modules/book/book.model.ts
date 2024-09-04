@@ -48,7 +48,7 @@ const BookSchema = new Schema<TBook>(
     price: { type: PriceSchema, required: true },
     description: { type: String, required: true },
     author: { type: String, required: true },
-    author_bio: { type: Schema.Types.ObjectId,ref:'Author',default: null },
+    author_bio: { type: Schema.Types.ObjectId, ref: 'Author', default: null },
     category: { type: String, required: true },
     language: { type: String, required: true },
     print_length: { type: Number, required: true },

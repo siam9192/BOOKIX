@@ -33,13 +33,13 @@ const moduleRoutes: TModuleRoutes = [
     router: WishBookRouter,
   },
   {
-    path:'/coupons',
-    router:CouponRouter
+    path: '/coupons',
+    router: CouponRouter,
   },
   {
-    path:'/orders',
-    router: OrderRouter
-  }
+    path: '/orders',
+    router: OrderRouter,
+  },
 ];
 const routes = moduleRoutes.map((route) =>
   router.use(route.path, route.router),

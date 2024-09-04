@@ -20,5 +20,5 @@ router.post('/pause-book/:bookId', BookController.pauseBook);
 router.post('/unpause-book/:bookId', BookController.unpauseBook);
 router.delete('/:bookId', BookController.deleteBook);
 
-router.post('/pay',BookController.pay)
+router.post('/pay', BookController.pay);
 export const BookRouter = router;

@@ -5,12 +5,12 @@ const wishBookSchema = new Schema<TWishBook>(
   {
     book: {
       type: Schema.Types.ObjectId,
-      ref:'Book',
+      ref: 'Book',
       required: true,
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref:'User',
+      ref: 'User',
       required: true,
     },
   },

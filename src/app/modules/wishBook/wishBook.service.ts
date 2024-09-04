@@ -24,7 +24,7 @@ const createWiseBookIntoDB = async (userId: string, bookId: string) => {
 };
 
 const getWishBooksFromDB = async (userId: string) => {
-  return await WishBook.find({user: objectId(userId)}).populate('book');
+  return await WishBook.find({ user: objectId(userId) }).populate('book');
 };
 
 const deleteWiseBookFromDB = async (userId: string, wishBookId: string) => {
@@ -44,9 +44,8 @@ const deleteWiseBookFromDB = async (userId: string, wishBookId: string) => {
   return await WishBook.findByIdAndDelete(wishBookId, { new: true });
 };
 
-
 export const WishBookService = {
-    createWiseBookIntoDB,
-    getWishBooksFromDB,
-    deleteWiseBookFromDB
-}
+  createWiseBookIntoDB,
+  getWishBooksFromDB,
+  deleteWiseBookFromDB,
+};

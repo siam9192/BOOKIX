@@ -48,39 +48,47 @@ const getUser = async (userId: string) => {
   return user;
 };
 
-const getUsers = async(query:any)=>{
-  const result = await new QueryBuilder(User.find(),query).textSearch().get()
-  return result
-}
+const getUsers = async (query: any) => {
+  const result = await new QueryBuilder(User.find(), query).textSearch().get();
+  return result;
+};
 
+const changeUserBlockStatusIntoDB = async (payload: {
+  userId: string;
+  status: boolean;
+}) => {
+  const user = await User.findById(payload.userId);
 
-
-const changeUserBlockStatusIntoDB = async (payload:{userId:string,status:boolean})=>{
-  const user = await User.findById(payload.userId)
-  
-  // Checking user existence 
-  if(!user){
-    throw new AppError(httpStatus.NOT_FOUND,'User Not found')
-  }
-  
-  // Admin can not be block 
-  
-  if(user.role === TRole.ADMIN){
-    throw new AppError(httpStatus.NOT_ACCEPTABLE,'It can not possible to block admin')
+  // Checking user existence
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User Not found');
   }
 
-  return await User.findByIdAndUpdate(payload.userId,{is_blocked:payload.status})
-}
+  // Admin can not be block
 
-const changeUserRoleIntoDB = async (payload:{userId:string,role:TRole})=>{
-  
-  return await User.findByIdAndUpdate(payload.userId,{role:payload.role})
-}
+  if (user.role === TRole.ADMIN) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      'It can not possible to block admin',
+    );
+  }
+
+  return await User.findByIdAndUpdate(payload.userId, {
+    is_blocked: payload.status,
+  });
+};
+
+const changeUserRoleIntoDB = async (payload: {
+  userId: string;
+  role: TRole;
+}) => {
+  return await User.findByIdAndUpdate(payload.userId, { role: payload.role });
+};
 
 export const UserService = {
   createUserIntoDB,
   getUser,
   getUsers,
   changeUserBlockStatusIntoDB,
-  changeUserRoleIntoDB
+  changeUserRoleIntoDB,
 };

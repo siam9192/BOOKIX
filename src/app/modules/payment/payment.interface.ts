@@ -4,17 +4,18 @@ export enum TPaymentMethod {
   STRIPE = 'Stripe',
   PAYPAL = 'Paypal',
 }
-export type TPaymentMethodUnion = (typeof TPaymentMethod)[keyof typeof TPaymentMethod];
+export type TPaymentMethodUnion =
+  (typeof TPaymentMethod)[keyof typeof TPaymentMethod];
 
-export type TPayment  = {
+export type TPayment = {
   transaction_id: string;
   payment_method: keyof typeof TPaymentMethod;
-  intent_id:string;
+  intent_id: string;
   amount: {
-    subtotal: number;  
-    discount: number;  
+    subtotal: number;
+    discount: number;
     delivery_charge: number;
-    total: number;  
+    total: number;
   };
   coupon: string;
   success: boolean;

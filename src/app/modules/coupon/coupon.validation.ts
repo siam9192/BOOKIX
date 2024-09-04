@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-
 const createCouponValidation = z.object({
   coupon_code: z.string(),
   description: z.string(),
@@ -12,14 +11,12 @@ const createCouponValidation = z.object({
   applicable_categories: z.union([z.array(z.string()), z.literal('**')]),
   specific_customers: z.union([z.array(z.string()), z.literal('**')]),
   usage_limit: z.union([z.number(), z.literal('unlimited')]),
-  terms_and_conditions: z.string()
+  terms_and_conditions: z.string(),
 });
 
-
-const updateCouponValidation = createCouponValidation.partial()
-
+const updateCouponValidation = createCouponValidation.partial();
 
 export const CouponValidations = {
   createCouponValidation,
-  updateCouponValidation
-}
+  updateCouponValidation,
+};

@@ -46,16 +46,18 @@ export enum TOrderStatus {
   RETURNED = 'Returned', // The order has been returned by the recipient
   CANCELLED = 'Cancelled', // The order has been cancelled and will not be delivered
 }
-
-// 7. Order Information
-export type TOrder = {
+export type TOrderBook = {
   book: Types.ObjectId;
   unit_price: number;
   quantity: number;
+  is_reviewed?: boolean;
+}
+// 7. Order Information
+export type TOrder = {
+  books: TOrderBook[];
   delivery_details: TDeliveryDetails;
   payment: Types.ObjectId;
   status: (typeof TOrderStatus)[keyof typeof TOrderStatus];
-  // is_paid:
-  is_reviewed?: boolean;
+  is_paid: boolean;
   user: Types.ObjectId;
 };

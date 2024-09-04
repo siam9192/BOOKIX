@@ -1,13 +1,11 @@
 import httpStatus from 'http-status';
-import { Request,Response } from 'express';
+import { Request, Response } from 'express';
 import { UserService } from './user.service';
 import { sendSuccessResponse } from '../../utils/response';
 import catchAsync from '../../utils/catchAsync';
 
-
-
 const getUsers = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserService.getUsers(req.query)
+  const result = await UserService.getUsers(req.query);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Users retrieved successfully',
@@ -15,7 +13,7 @@ const getUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserService.getUser(req.params.userId)
+  const result = await UserService.getUser(req.params.userId);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Users retrieved successfully',
@@ -23,18 +21,19 @@ const getUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-const changeUserBlockStatusIntoDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserService.changeUserBlockStatusIntoDB(req.body)
-  sendSuccessResponse(res, {
-    statusCode: httpStatus.OK,
-    message: 'User block status changed successfully successfully',
-    data: result,
-  });
-});
+const changeUserBlockStatusIntoDB = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await UserService.changeUserBlockStatusIntoDB(req.body);
+    sendSuccessResponse(res, {
+      statusCode: httpStatus.OK,
+      message: 'User block status changed successfully successfully',
+      data: result,
+    });
+  },
+);
 
 const changeUserRole = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserService.changeUserRoleIntoDB(req.body)
+  const result = await UserService.changeUserRoleIntoDB(req.body);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'User role changed successfully successfully',
@@ -46,5 +45,5 @@ export const UserController = {
   getUsers,
   getUser,
   changeUserBlockStatusIntoDB,
-  changeUserRole
-}
+  changeUserRole,
+};

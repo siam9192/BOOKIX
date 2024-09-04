@@ -11,7 +11,6 @@ const amountSchema = new Schema({
     min: 0,
     required: true,
   },
- 
 
   discount: {
     type: Number,
@@ -21,8 +20,8 @@ const amountSchema = new Schema({
   total: {
     type: Number,
     required: true,
-  }
-})
+  },
+});
 
 const paymentSchema = new Schema<TPayment>(
   {
@@ -35,10 +34,10 @@ const paymentSchema = new Schema<TPayment>(
       enum: Object.values(TPaymentMethod),
       required: true,
     },
-   amount:{
-    type:amountSchema,
-    required:true
-   },
+    amount: {
+      type: amountSchema,
+      required: true,
+    },
     coupon: {
       type: String,
       default: null,
@@ -50,7 +49,7 @@ const paymentSchema = new Schema<TPayment>(
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      default:null
+      required:true,
     },
   },
   {

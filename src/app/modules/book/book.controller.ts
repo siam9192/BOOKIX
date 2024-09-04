@@ -121,16 +121,14 @@ const getBooksBasedOnDiscount = catchAsync(
   },
 );
 
-const pay = catchAsync(
-  async (req: Request, res: Response) => {
-    const result = await BookService.pay();
-    sendSuccessResponse(res, {
-      statusCode: httpStatus.OK,
-      message: 'Books retrieved  successfully based on discount',
-      data: result,
-    });
-  },
-);
+const pay = catchAsync(async (req: Request, res: Response) => {
+  const result = await BookService.pay();
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Books retrieved  successfully based on discount',
+    data: result,
+  });
+});
 
 export const BookController = {
   createBook,
@@ -145,5 +143,5 @@ export const BookController = {
   pauseBook,
   unpauseBook,
   getBooksBasedOnDiscount,
-  pay
+  pay,
 };

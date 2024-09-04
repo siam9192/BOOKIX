@@ -5,8 +5,10 @@ import {
   TContact,
   TDeliveryDetails,
   TOrder,
+  TOrderBook,
   TOrderStatus,
 } from './order.interface';
+import { boolean } from 'zod';
 
 const contactSchema = new Schema<TContact>({
   name: {
@@ -77,22 +79,32 @@ const deliveryDetailsSchema = new Schema<TDeliveryDetails>({
   },
 });
 
+const orderBookSchema = new Schema<TOrderBook>({
+ book: {
+  type: Schema.Types.ObjectId,
+  ref: 'Book',
+  required: true,
+},
+unit_price: {
+  type: Number,
+  required: true,
+},
+quantity: {
+  type: Number,
+  min: 0,
+  required: true,
+  is_reviewed:{
+    type:Boolean,
+    default:false
+  }
+},})
+
 const orderSchema = new Schema<TOrder>(
   {
-    book: {
-      type: Schema.Types.ObjectId,
-      ref: 'Book',
-      required: true,
-    },
-    unit_price: {
-      type: Number,
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      min: 0,
-      required: true,
-    },
+   books:{
+    type:[orderBookSchema],
+    required:true
+   },
     delivery_details: {
       type: deliveryDetailsSchema,
       required: true,
@@ -105,11 +117,7 @@ const orderSchema = new Schema<TOrder>(
     status: {
       type: String,
       enum: Object.values(TOrderStatus),
-      default:TOrderStatus.PENDING
-    },
-    isReviewed: {
-      type: Boolean,
-      default: false,
+      default: TOrderStatus.PENDING,
     },
     user: {
       type: Schema.Types.ObjectId,
