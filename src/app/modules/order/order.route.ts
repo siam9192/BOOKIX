@@ -15,7 +15,10 @@ router.post(
 );
 
 router.get('/payment-success', OrderController.managePaymentSuccessOrders);
-router.get('/payment/paypal/success',OrderController.managePaypalPaymentSuccessOrders)
+router.get(
+  '/payment/paypal/success',
+  OrderController.managePaypalPaymentSuccessOrders,
+);
 
-router.get('/',auth(TRole.ADMIN,TRole.MODERATOR),OrderController.getOrders)
+router.get('/', auth(TRole.ADMIN, TRole.MODERATOR), OrderController.getOrders);
 export const OrderRouter = router;

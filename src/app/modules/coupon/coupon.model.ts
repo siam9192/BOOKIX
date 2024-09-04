@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { TCoupon } from './coupon.interface';
+import { TCoupon, TCouponDiscountType } from './coupon.interface';
 
 const couponSchema: Schema = new Schema<TCoupon>({
   coupon_code: { type: String, required: true, unique: true },
@@ -7,7 +7,7 @@ const couponSchema: Schema = new Schema<TCoupon>({
   discount_amount: { type: Number, required: true },
   discount_type: {
     type: String,
-    enum: ['percentage', 'fixed'],
+    enum: Object.values(TCouponDiscountType),
     required: true,
   },
   valid_from: { type: Date, required: true },

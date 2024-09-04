@@ -8,7 +8,7 @@ paypal.configure({
   client_secret: config.paypal_secret as string,
 });
 
-export const pay = async(res:Response,amount:number,paymentId:string) => {
+export const pay = async (res: Response, amount: number, paymentId: string) => {
   const paymentJson: any = {
     intent: 'sale',
     payer: {
@@ -28,69 +28,73 @@ export const pay = async(res:Response,amount:number,paymentId:string) => {
       },
     ],
   };
-  
+
   paypal.payment.create(paymentJson, (error, payment) => {
     if (error) {
-     throw new Error()
+      throw new Error();
     } else {
       if (payment?.links) {
-       payment.links.forEach(link=>{
-        if(link.rel === 'approval_url'){
-        res.send(link.href)
-        }
-       })
+        payment.links.forEach((link) => {
+          if (link.rel === 'approval_url') {
+            res.send(link.href);
+          }
+        });
       }
     }
   });
- 
 };
 
+const executePayment = async (
+  paymentId: string,
+  payerId: string,
+  callFun: (saleId: string) => void | any,
+) => {
+  paypal.payment.execute(
+    paymentId,
+    { payer_id: payerId },
+    function (error, payment: any) {
+      if (error) {
+        throw new Error();
+      } else {
+        console.log('Payment successful');
+        const paymentTransactions = payment.transactions[0];
+        if (
+          paymentTransactions &&
+          paymentTransactions.related_resources?.length
+        ) {
+          const saleId = paymentTransactions.related_resources[0].sale.id;
+          if (saleId) {
+            callFun(saleId);
+          }
+        }
+      }
+    },
+  );
+};
 
-const executePayment = async(paymentId:string,payerId:string,callFun:(saleId:string)=>void|any)=>{
-paypal.payment.execute(paymentId,{payer_id:payerId},function(error,payment:any){
-if(error){
-  throw new Error()
-}
-else {
-  console.log('Payment successful')
-  const paymentTransactions = payment.transactions[0]
-  if(paymentTransactions && paymentTransactions.related_resources?.length){
-    const saleId = paymentTransactions.related_resources[0].sale.id
-    if(saleId){
-      callFun(saleId)
-    }
-  }
-}
-})
-}
-
-
-const refund = (saleId:string,amount:number)=>{
-  
+const refund = (saleId: string, amount: number) => {
   const data = {
-    amount:{
-      total:amount.toFixed(2),
-      currency:'USD'
-    }
+    amount: {
+      total: amount.toFixed(2),
+      currency: 'USD',
+    },
+  };
+  try {
+    paypal.sale.refund(saleId, data, function (error, refund) {
+      if (error) {
+        // throw new Error()
+        console.log(error);
+      } else {
+        console.log('Refund success full');
+      }
+    });
+  } catch (error) {
+    console.log(error);
   }
- try {
-  paypal.sale.refund(saleId,data,function(error,refund){
-    if(error){
-      // throw new Error()
-      console.log(error)
-    }
-    else {
-     console.log("Refund success full")
-    }
-  })
-  
- } catch (error) {
-  console.log(error)
- }
-}
+};
 
 export const Paypal = {
   pay,
   executePayment,
-  refund
-}
+  refund,
+};

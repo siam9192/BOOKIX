@@ -64,7 +64,7 @@ export const pay = async (data: TData) => {
   });
   const paymentIntentId = session.payment_intent;
   const url = session.url;
-  return url
+  return url;
 };
 
 export const refund = async (paymentIntentId: string, amount: number) => {

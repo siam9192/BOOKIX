@@ -49,7 +49,7 @@ const paymentSchema = new Schema<TPayment>(
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required:true,
+      required: true,
     },
   },
   {

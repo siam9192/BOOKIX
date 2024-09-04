@@ -51,7 +51,7 @@ export type TOrderBook = {
   unit_price: number;
   quantity: number;
   is_reviewed?: boolean;
-}
+};
 // 7. Order Information
 export type TOrder = {
   books: TOrderBook[];

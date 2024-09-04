@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { TCouponDiscountType } from './coupon.interface';
 
 const createCouponValidation = z.object({
   coupon_code: z.string(),
   description: z.string(),
   discount_amount: z.number(),
-  discount_type: z.enum(['percentage', 'fixed']),
+  discount_type: z.enum(Object.values(TCouponDiscountType) as any),
   valid_from: z.string().datetime(),
   valid_until: z.string().datetime(),
   minimum_purchase_amount: z.number(),

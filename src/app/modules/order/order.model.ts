@@ -80,31 +80,32 @@ const deliveryDetailsSchema = new Schema<TDeliveryDetails>({
 });
 
 const orderBookSchema = new Schema<TOrderBook>({
- book: {
-  type: Schema.Types.ObjectId,
-  ref: 'Book',
-  required: true,
-},
-unit_price: {
-  type: Number,
-  required: true,
-},
-quantity: {
-  type: Number,
-  min: 0,
-  required: true,
-  is_reviewed:{
-    type:Boolean,
-    default:false
-  }
-},})
+  book: {
+    type: Schema.Types.ObjectId,
+    ref: 'Book',
+    required: true,
+  },
+  unit_price: {
+    type: Number,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    min: 0,
+    required: true,
+    is_reviewed: {
+      type: Boolean,
+      default: false,
+    },
+  },
+});
 
 const orderSchema = new Schema<TOrder>(
   {
-   books:{
-    type:[orderBookSchema],
-    required:true
-   },
+    books: {
+      type: [orderBookSchema],
+      required: true,
+    },
     delivery_details: {
       type: deliveryDetailsSchema,
       required: true,
