@@ -93,10 +93,10 @@ const orderBookSchema = new Schema<TOrderBook>({
     type: Number,
     min: 0,
     required: true,
-    is_reviewed: {
-      type: Boolean,
-      default: false,
-    },
+  },
+  is_reviewed: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -120,7 +120,7 @@ const orderSchema = new Schema<TOrder>(
       enum: Object.values(TOrderStatus),
       default: TOrderStatus.PENDING,
     },
-    user: {
+    customer: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,

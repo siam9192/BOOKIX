@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { TName } from '../user/user.interface';
+import { TName, TRoleUnion } from '../user/user.interface';
 
 // 1. Contact Details
 export type TContact = {
@@ -52,12 +52,17 @@ export type TOrderBook = {
   quantity: number;
   is_reviewed?: boolean;
 };
+
 // 7. Order Information
 export type TOrder = {
   books: TOrderBook[];
   delivery_details: TDeliveryDetails;
   payment: Types.ObjectId;
   status: (typeof TOrderStatus)[keyof typeof TOrderStatus];
-  is_paid: boolean;
-  user: Types.ObjectId;
+  cancel_details: {
+    canceled_by: Types.ObjectId;
+    canceled_at: Date;
+  };
+  is_returned: boolean;
+  customer: Types.ObjectId;
 };

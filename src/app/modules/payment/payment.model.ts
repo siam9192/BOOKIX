@@ -29,6 +29,11 @@ const paymentSchema = new Schema<TPayment>(
       type: String,
       required: true,
     },
+    intent_id: {
+      type: String,
+      select: 0,
+      default: null,
+    },
     payment_method: {
       type: String,
       enum: Object.values(TPaymentMethod),

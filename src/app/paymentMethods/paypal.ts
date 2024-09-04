@@ -16,7 +16,7 @@ export const pay = async (res: Response, amount: number, paymentId: string) => {
     },
     redirect_urls: {
       return_url: `http://localhost:5000/api/v1/orders/payment/paypal/success?orderPaymentId=${paymentId}`,
-      cancel_url: 'http://localhost:5000/payment/api/v1/paypal/cancel',
+      cancel_url: `http://localhost:5000/api/v1/orders/payment/cancel?paymentId=${paymentId}`,
     },
     transactions: [
       {
@@ -56,7 +56,6 @@ const executePayment = async (
       if (error) {
         throw new Error();
       } else {
-        console.log('Payment successful');
         const paymentTransactions = payment.transactions[0];
         if (
           paymentTransactions &&
@@ -64,7 +63,11 @@ const executePayment = async (
         ) {
           const saleId = paymentTransactions.related_resources[0].sale.id;
           if (saleId) {
-            callFun(saleId);
+            try {
+              callFun(saleId);
+            } catch (error) {
+              console.log(error);
+            }
           }
         }
       }

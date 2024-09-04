@@ -46,6 +46,10 @@ class QueryBuilder<T> {
     }
     return this;
   }
+  project(...fields: string[]) {
+    this.modelQuery = this.modelQuery.select([...fields]);
+    return this;
+  }
   get() {
     return this.modelQuery;
   }

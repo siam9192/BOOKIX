@@ -1,5 +1,8 @@
 import config from '../config';
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import AppError from '../Errors/AppError';
+import httpStatus from 'http-status';
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -140,4 +143,52 @@ export const sendEmailVerificationMail = async (
     subject: 'Verify your Bookix account',
     html: userVerificationEmailHtml(otp),
   });
+};
+
+const sendMail = async (
+  emailAddress: string,
+  subject: string,
+  html: string,
+) => {
+  await transporter.sendMail({
+    from: 'camperShop.email.@gmail.com',
+    to: emailAddress,
+    subject: 'Verify your Bookix account',
+    html: html,
+  });
+};
+
+export const sendResetPasswordMail = async (
+  emailAddress: string,
+  token: string,
+) => {
+  const path = require('path');
+  const fs = require('fs');
+
+  // Path name of html template file
+  const pathName = path.join(
+    process.cwd(),
+    'template-forget-email',
+    'index.html',
+  );
+  try {
+    const data = await fs.promises.readFile(pathName, 'utf8');
+
+    if (!data) {
+      throw new AppError(400, 'Something went wrong');
+    }
+
+    let template = data;
+    //    Adding reset link in template
+    template = template.replace(
+      'this is reset password link',
+      `http://localhost:5173?token=${token}`,
+    );
+
+    // Sending reset password  mail
+    await sendMail(emailAddress, 'Reset your password', template);
+  } catch (error) {
+    console.log(error);
+    throw new AppError(400, 'Something went wrong');
+  }
 };

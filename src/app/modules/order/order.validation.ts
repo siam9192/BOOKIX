@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TPaymentMethod } from '../payment/payment.interface';
+import { TOrderStatus } from './order.interface';
 const contactSchema = z.object({
   name: z.object({
     first_name: z.string(),
@@ -46,6 +47,12 @@ const createOrderValidation = z.object({
   delivery_details: deliveryDetailsSchema,
 });
 
+const updateOrderStatusValidation = {
+  orderId: z.string(),
+  status: z.enum(Object.values(TOrderStatus) as [string, ...string[]]),
+};
+
 export const OrderValidations = {
   createOrderValidation,
+  updateOrderStatusValidation,
 };

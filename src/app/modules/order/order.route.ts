@@ -19,6 +19,17 @@ router.get(
   '/payment/paypal/success',
   OrderController.managePaypalPaymentSuccessOrders,
 );
-
+router.get('/payment/cancel', OrderController.managePaymentCanceledOrder);
 router.get('/', auth(TRole.ADMIN, TRole.MODERATOR), OrderController.getOrders);
+router.get(
+  '/customer/yet-to-review',
+  auth(TRole.ADMIN, TRole.MODERATOR, TRole.CUSTOMER),
+  OrderController.getCustomerYetToReviewOrders,
+);
+
+router.patch(
+  '/update-status',
+  auth(TRole.ADMIN, TRole.MODERATOR),
+  OrderController.updateOrderStatus,
+);
 export const OrderRouter = router;

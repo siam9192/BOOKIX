@@ -7,11 +7,6 @@ import { OrderService } from './order.service';
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const result = await OrderService.createOrderIntoDB(res, userId, req.body);
-  // sendSuccessResponse(res, {
-  //   statusCode: httpStatus.CREATED,
-  //   message: 'Order created successfully',
-  //   data: result,
-  // });
 });
 
 const managePaymentSuccessOrders = catchAsync(
@@ -35,15 +30,50 @@ const managePaypalPaymentSuccessOrders = catchAsync(
 const getOrders = catchAsync(async (req: Request, res: Response) => {
   const result = await OrderService.getOrdersFromDB(req.query);
   sendSuccessResponse(res, {
-    statusCode: httpStatus.CREATED,
+    statusCode: httpStatus.OK,
     message: 'Orders retrieved successfully',
     data: result,
   });
 });
+
+const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
+  const result = await OrderService.updateOrderStatus(req.body);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Orders status updated successfully',
+    data: result,
+  });
+});
+
+const managePaymentCanceledOrder = catchAsync(
+  async (req: Request, res: Response) => {
+    const paymentId = req.query.paymentId;
+    const result = await OrderService.managePaymentCanceledOrderIntoDB(
+      paymentId as string,
+    );
+    res.redirect('https://www.youtube.com/');
+  },
+);
+
+const getCustomerYetToReviewOrders = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const result =
+      await OrderService.getCustomerYetToReviewOrdersFromDB(userId);
+    sendSuccessResponse(res, {
+      statusCode: httpStatus.OK,
+      message: 'Yet to review order retrieved successfully',
+      data: result,
+    });
+  },
+);
 
 export const OrderController = {
   createOrder,
   managePaymentSuccessOrders,
   managePaypalPaymentSuccessOrders,
   getOrders,
+  updateOrderStatus,
+  managePaymentCanceledOrder,
+  getCustomerYetToReviewOrders,
 };

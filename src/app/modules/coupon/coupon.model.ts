@@ -14,7 +14,7 @@ const couponSchema: Schema = new Schema<TCoupon>({
   valid_until: { type: Date, required: true },
   minimum_purchase_amount: { type: Number, required: true },
   applicable_categories: {
-    type: [String],
+    type: Schema.Types.Mixed,
     validate: {
       validator: function (value: string[] | '**') {
         return (
@@ -27,7 +27,7 @@ const couponSchema: Schema = new Schema<TCoupon>({
     default: '**',
   },
   specific_customers: {
-    type: [String],
+    type: Schema.Types.Mixed,
     validate: {
       validator: function (value: string[] | '**') {
         return (

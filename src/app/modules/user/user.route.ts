@@ -14,3 +14,5 @@ router.get(
 
 // router.patch('//block')
 router.patch('/change-role', auth(TRole.ADMIN));
+
+export const UserRouter = router;

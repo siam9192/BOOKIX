@@ -16,8 +16,6 @@ import { Paypal } from '../../paymentMethods/paypal';
 import { Response } from 'express';
 import Coupon from '../coupon/coupon.model';
 import { TCouponDiscountType } from '../coupon/coupon.interface';
-import { order } from 'paypal-rest-sdk';
-
 const createOrderIntoDB = async (
   res: Response,
   userId: string,
@@ -69,9 +67,6 @@ const createOrderIntoDB = async (
     purchasedBooks.push(bookData);
   });
 
-  let success_url;
-  let cancel_url = 'http://localhost:5173/';
-
   // Calculating total amount
   let total = 0;
   let subtotal = 0;
@@ -102,6 +97,26 @@ const createOrderIntoDB = async (
     if (!coupon) {
       throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found');
     }
+    // Checking coupon apply requirements
+
+    if (coupon.specific_customers !== '**') {
+      if (!coupon.specific_customers.includes(userId)) {
+        throw new AppError(
+          httpStatus.NOT_ACCEPTABLE,
+          'Coupon can not be applied',
+        );
+      }
+    } else if (coupon.applicable_categories !== '**') {
+      books.forEach((book) => {
+        if (!coupon.applicable_categories.includes(book.category)) {
+          throw new AppError(
+            httpStatus.NOT_ACCEPTABLE,
+            `Coupon cannot be applied on ${book.category}`,
+          );
+        }
+      });
+    }
+
     // Checking coupon validity
     else if (currentDate < new Date(coupon.valid_from)) {
       throw new AppError(
@@ -112,7 +127,13 @@ const createOrderIntoDB = async (
     // Checking coupon validity
     else if (currentDate > new Date(coupon.valid_until)) {
       throw new AppError(httpStatus.NOT_ACCEPTABLE, `The coupon is expired`);
+    } else if (coupon.minimum_purchase_amount > amount.total) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        `This coupon can be applied on minimum $ ${coupon.minimum_purchase_amount} purchase`,
+      );
     }
+    // Applying coupon on price based on coupon type
     if (coupon.discount_type === TCouponDiscountType.FIXED) {
       amount.total = amount.total - coupon.discount_amount;
       amount.discount = coupon.discount_amount;
@@ -122,17 +143,16 @@ const createOrderIntoDB = async (
       amount.discount = discount;
     }
   }
-  console.log(amount);
 
   const paymentData = {
-    transaction_id: 'ST' + crypto.randomBytes(8).toString('hex'),
+    transaction_id: 'PP' + crypto.randomBytes(8).toString('hex'),
     payment_method: payload.payment_method,
-    intent_id: crypto.randomBytes(8).toString('hex'),
     amount,
     coupon: payload.coupon || null,
     user: userId,
   };
 
+  // Session for transaction and rollback
   const session = await startSession();
   session.startTransaction();
   try {
@@ -140,8 +160,6 @@ const createOrderIntoDB = async (
     if (!payment || !payment[0]) {
       throw new Error();
     }
-
-    success_url = `http://localhost:5000/api/v1/orders/payment-success?paymentId=${payment[0]._id.toString()}`;
 
     const orderData = {
       books: purchasedBooks.map((book) => ({
@@ -151,34 +169,21 @@ const createOrderIntoDB = async (
       })),
       delivery_details: payload.delivery_details,
       payment: payment[0]._id,
-      user: userId,
+      customer: userId,
     };
 
-    const order = await Order.create(orderData);
-    if (!order) {
+    // Creating order into db
+    const order = await Order.create([orderData], { session });
+
+    // Checking is the order successfully created in the database
+    if (!order[0]) {
       throw new Error();
     }
 
-    let paymentUrl;
     await session.commitTransaction();
     await session.endSession();
 
-    switch (payload.payment_method) {
-      case TPaymentMethod.PAYPAL:
-        paymentUrl = await Paypal.pay(
-          res,
-          amount.total,
-          payment[0]._id.toString(),
-        );
-        break;
-      case TPaymentMethod.STRIPE:
-        paymentUrl = await Stripe.pay({
-          books: purchasedBooks,
-          success_url,
-          cancel_url,
-        });
-        break;
-    }
+    await Paypal.pay(res, amount.total, payment[0]._id.toString());
   } catch (error) {
     await session.abortTransaction();
     await session.endSession();
@@ -186,27 +191,33 @@ const createOrderIntoDB = async (
   }
 };
 
-const managePaymentSuccessOrdersIntoDB = async (
-  paymentId: string,
-  payment_method?: TPaymentMethodUnion,
-) => {
+const managePaymentSuccessOrdersIntoDB = async (paymentId: string) => {
   const payment = await Payment.findById(paymentId);
+
+  //  Checking payment existence
   if (!payment) {
     throw new AppError(httpStatus.NOT_FOUND, 'Something went wrong');
   }
 
+  // Updating payment success status false to true
   const updatePayment = await Payment.updateOne(
     { _id: payment._id },
     { success: true },
   );
+
+  // Checking is the payment successfully updated
   if (!updatePayment.modifiedCount) {
     throw new AppError(400, 'Order unsuccess full');
   }
+
+  // Updating order paid status
   const orderedBooks = await Order.findOneAndUpdate(
     { payment: objectId(paymentId) },
     { is_paid: true },
     { new: true },
   ).select('books');
+
+  // Updating books available_stock
   if (orderedBooks) {
     Promise.all(
       orderedBooks.books.map((item) =>
@@ -219,12 +230,15 @@ const managePaymentSuccessOrdersIntoDB = async (
   return true;
 };
 
+// Manage order after successful payment
 const managePaypalPaymentSuccessOrdersIntoDB = async (
   res: Response,
   query: { PayerID: string; paymentId: string; orderPaymentId: string },
 ) => {
   const manageOrder = async (saleId: string) => {
     const payment = await Payment.findById(query.orderPaymentId);
+
+    //  Checking payment existence
     if (!payment) {
       throw new AppError(httpStatus.NOT_FOUND, 'Something went wrong');
     }
@@ -233,20 +247,27 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
     session.startTransaction();
 
     try {
+      // Updating payment success status false to true
       const updatePayment = await Payment.updateOne(
         { _id: payment._id },
-        { success: true },
+        { success: true, intent_id: saleId },
       );
+
+      // Checking is the payment successfully updated
       if (!updatePayment.modifiedCount) {
         throw new Error();
       }
+
+      // Updating order paid status
       const orderedBooks = await Order.findOneAndUpdate(
         { payment: objectId(query.orderPaymentId) },
         { is_paid: true },
         { new: true, session },
       ).select('books');
+
+      // Updating books available_stock
       if (orderedBooks) {
-        Promise.all(
+        await Promise.all(
           orderedBooks.books.map((item) =>
             Book.findByIdAndUpdate(
               item.book,
@@ -258,21 +279,26 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
           throw new Error();
         });
       }
-      session.commitTransaction();
+      await session.commitTransaction();
       session.endSession;
-
       res.redirect('https://www.youtube.com/watch?v=1xyPf6Rm2Nw');
     } catch (error) {
-      session.abortTransaction();
+      await session.abortTransaction();
       session.endSession();
 
-      // Finding an error and refund the payed amount  to payer
+      // Found an error and refund the payed amount  to payer
       Paypal.refund(saleId, payment.amount.subtotal);
     }
   };
 
   // Executing payment
   Paypal.executePayment(query.paymentId, query.PayerID, manageOrder);
+};
+
+// Manage order after cancel payment
+const managePaymentCanceledOrderIntoDB = async (paymentId: string) => {
+  await Order.findOneAndDelete({ payment: objectId(paymentId) });
+  await Payment.findByIdAndDelete(paymentId);
 };
 
 const getOrdersFromDB = async (query: any) => {
@@ -313,46 +339,113 @@ const getOrdersFromDB = async (query: any) => {
 const updateOrderStatus = async (
   payload: Pick<TOrder, 'status'> & { orderId: string },
 ) => {
-  const order:any = await Order.findById(payload.orderId).populate('payment');
+  const order: any = await Order.findById(payload.orderId).populate('payment');
 
   //  Checking order existence
   if (!order) {
     throw new AppError(httpStatus.NOT_FOUND, 'Order not found');
   }
-  
-  // Checking order payment status 
-  if(!order.payment.success){
-    throw new AppError(httpStatus.NOT_ACCEPTABLE,'Status can not be change of this order ')
+
+  // Checking order payment status
+  if (!order.payment.success) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      'Status can not be change of this order ',
+    );
   }
   const orderStatus = order.status;
 
-  if(orderStatus === TOrderStatus.PENDING){
-  switch(payload.status){
-    case TOrderStatus.IN_TRANSIT:
-      throw new AppError(httpStatus.NOT_MODIFIED,'Status can not be changed Pending to In Transit')
-      case TOrderStatus.OUT_FOR_DELIVERY:
-        throw new AppError(httpStatus.NOT_MODIFIED,'Status can not be changed Pending to OutForDelivery')
-        case TOrderStatus.DELIVERED:
-          throw new AppError(httpStatus.NOT_MODIFIED,'Status can not be changed Pending to  Delivered ')
-            case TOrderStatus.RETURNED:
-              throw new AppError(httpStatus.NOT_MODIFIED,'Status can not be changed Pending to  Returned ')
-  } 
+  if (
+    orderStatus === TOrderStatus.PENDING &&
+    payload.status !== TOrderStatus.PROCESSING
+  ) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      `Order status can not be change Pending to ${payload.status}`,
+    );
+  } else if (
+    orderStatus === TOrderStatus.PROCESSING &&
+    payload.status !== TOrderStatus.IN_TRANSIT
+  ) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      `Order status can not be change Processing to ${payload.status}`,
+    );
+  } else if (
+    orderStatus === TOrderStatus.IN_TRANSIT &&
+    payload.status !== TOrderStatus.OUT_FOR_DELIVERY
+  ) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      `Order status can not be change InTransit to ${payload.status}`,
+    );
+  } else if (orderStatus === TOrderStatus.DELIVERED) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      'Delivered order status can not be update',
+    );
+  } else if (orderStatus === TOrderStatus.RETURNED) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      'Order status can not be change',
+    );
+  } else if (orderStatus === TOrderStatus.CANCELLED) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      'Order status can not be change',
+    );
   }
-  
-  else if(orderStatus === TOrderStatus.PROCESSING && payload.status !== TOrderStatus.IN_TRANSIT){
-     throw new AppError(httpStatus.NOT_MODIFIED,'Order status can not be change Processing to OutForDelivery,Delivered,Returned')
-  }
-  else if(orderStatus === TOrderStatus.IN_TRANSIT && payload.status !== TOrderStatus.OUT_FOR_DELIVERY){
-    throw new AppError(httpStatus.NOT_MODIFIED,'Order status can not be change In Transit to Delivered,Returned')
- }
- else if(orderStatus === TOrderStatus.DELIVERED){
-  throw new AppError(httpStatus.NOT_MODIFIED,'Order status can not be change')
-}
-else if(orderStatus === TOrderStatus.RETURNED){
-  throw new AppError(httpStatus.NOT_MODIFIED,'Order status can not be change')
-}
-  
 
+  const result = await Order.findByIdAndUpdate(
+    payload.orderId,
+    { status: payload.status },
+    { new: true },
+  ).select('status');
+  return result;
+};
+
+const getCustomerYetToReviewOrdersFromDB = async (userId: string) => {
+  const result = await Order.aggregate([
+    {
+      $match: {
+        customer: objectId(userId),
+        status: TOrderStatus.DELIVERED,
+      },
+    },
+    {
+      $unwind: '$books',
+    },
+    {
+      $project: {
+        order: '$books',
+      },
+    },
+    {
+      $match: {
+        'order.is_reviewed': false,
+      },
+    },
+    {
+      $lookup: {
+        from: 'books',
+        localField: 'order.book',
+        foreignField: '_id',
+        as: 'order.book',
+      },
+    },
+    {
+      $project: {
+        'order.book': {
+          name: 1,
+          cover_images: 1,
+        },
+        'order.quantity': 1,
+        'order.unit_price': 1,
+      },
+    },
+  ]);
+
+  return result;
 };
 
 export const OrderService = {
@@ -360,4 +453,7 @@ export const OrderService = {
   managePaymentSuccessOrdersIntoDB,
   managePaypalPaymentSuccessOrdersIntoDB,
   getOrdersFromDB,
+  updateOrderStatus,
+  managePaymentCanceledOrderIntoDB,
+  getCustomerYetToReviewOrdersFromDB,
 };

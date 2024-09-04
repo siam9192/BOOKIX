@@ -14,6 +14,9 @@ export default {
   jwt_access_token_expire_time: process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME,
   jwt_refresh_token_secret: process.env.JWT_REFRESH_SECRET,
   jwt_refresh_token_expire_time: process.env.JWT_REFRESH_TOKEN_EXPIRE_TIME,
+  jwt_forget_password_token_secret: process.env.JWT_FORGET_PASSWORD_SECRET,
+  jwt_forget_password_token_expire_time:
+    process.env.JWT_FORGET_PASSWORD_SECRET_TOKEN_EXPIRE_TIME,
   jwt_ac_verify_secret: process.env.JWT_AC_VERIFY_SECRET,
   app_user_name: process.env.APP_USER_NAME,
   app_pass_key: process.env.APP_PASS_KEY,

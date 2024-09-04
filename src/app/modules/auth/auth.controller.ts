@@ -49,9 +49,44 @@ const handelLogin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const result = await AuthService.changePasswordIntoDB(userId, req.body);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Password changed  successfully',
+    data: result,
+  });
+});
+
+const forgetPassword = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.forgetPassword(req.body.email);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Password reset link has been send to your email address',
+    data: result,
+  });
+});
+
+const resetPasswordFromForgetPasswordRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await AuthService.resetPasswordFromForgetPasswordRequest(
+      req.body,
+    );
+    sendSuccessResponse(res, {
+      statusCode: httpStatus.OK,
+      message: 'Password changed successfully',
+      data: result,
+    });
+  },
+);
+
 export const AuthController = {
   handelSignupRequest,
   handelResendRequest,
   handelSignupVerify,
   handelLogin,
+  changePassword,
+  forgetPassword,
+  resetPasswordFromForgetPasswordRequest,
 };

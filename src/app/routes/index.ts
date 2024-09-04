@@ -6,6 +6,7 @@ import { AuthorRouter } from '../modules/author/author.route';
 import { WishBookRouter } from '../modules/wishBook/wishBook.route';
 import { CouponRouter } from '../modules/coupon/coupon.route';
 import { OrderRouter } from '../modules/order/order.route';
+import { UserRouter } from '../modules/user/user.route';
 
 const router = Router();
 
@@ -15,6 +16,10 @@ const moduleRoutes: TModuleRoutes = [
   {
     path: '/auth',
     router: AuthRouter,
+  },
+  {
+    path: '/users',
+    router: UserRouter,
   },
   {
     path: '/books',
