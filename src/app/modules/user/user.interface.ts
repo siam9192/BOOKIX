@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+
 export type TName = {
   first_name: string;
   middle_name?: string;
@@ -46,14 +48,22 @@ export enum TRegistrationOption {
   EMAIL = 'email',
 }
 
+type TNotification = {
+  notification: Types.ObjectId;
+  read: boolean;
+  created_at: Date;
+};
+
 export type TUser = {
   name: TName;
   date_of_birth: string;
   gender: (typeof TGender)[keyof typeof TGender];
+  profile_photo: string;
   email: string;
   password?: string;
   role: (typeof TRole)[keyof typeof TRole];
   is_blocked?: boolean;
-  isDeleted?: boolean;
+  is_deleted?: boolean;
   registered_by: (typeof TRegistrationOption)[keyof typeof TRegistrationOption];
+  notifications: TNotification[];
 };

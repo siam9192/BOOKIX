@@ -1,5 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { TGender, TName, TRegistrationOption, TRole } from './user.interface';
+import {
+  TGender,
+  TName,
+  TRegistrationOption,
+  TRole,
+  TUser,
+} from './user.interface';
 
 export const nameSchema = new Schema<TName>({
   first_name: {
@@ -16,7 +22,23 @@ export const nameSchema = new Schema<TName>({
   },
 });
 
-const userSchema = new Schema(
+const notificationSchema = new Schema({
+  notification: {
+    type: Schema.Types.ObjectId,
+    ref: 'Notification',
+    required: true,
+  },
+  read: {
+    type: Boolean,
+    default: false,
+  },
+  created_at: {
+    type: Date,
+    default: new Date(),
+  },
+});
+
+const userSchema = new Schema<TUser>(
   {
     name: {
       type: nameSchema,
@@ -50,7 +72,7 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    isDeleted: {
+    is_deleted: {
       type: Boolean,
       default: false,
     },
@@ -58,6 +80,11 @@ const userSchema = new Schema(
       type: String,
       enum: Object.values(TRegistrationOption),
       required: true,
+    },
+    notifications: {
+      type: [notificationSchema],
+      default: [],
+      select: 0,
     },
   },
   {

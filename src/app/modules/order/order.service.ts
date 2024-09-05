@@ -16,6 +16,7 @@ import { Paypal } from '../../paymentMethods/paypal';
 import { Response } from 'express';
 import Coupon from '../coupon/coupon.model';
 import { TCouponDiscountType } from '../coupon/coupon.interface';
+import { NotificationService } from '../notification/notification.service';
 const createOrderIntoDB = async (
   res: Response,
   userId: string,
@@ -279,6 +280,14 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
           throw new Error();
         });
       }
+      
+      await NotificationService.createNotificationIntoDB({
+        notification:{
+          title:'Your order successfully placed`',
+          description:'Thanks for your order.We will deliver your order as soon as possible'
+        },
+        users:[payment.user.toString()]
+      })      
       await session.commitTransaction();
       session.endSession;
       res.redirect('https://www.youtube.com/watch?v=1xyPf6Rm2Nw');

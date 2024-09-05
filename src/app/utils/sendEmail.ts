@@ -1,8 +1,6 @@
 import config from '../config';
 import nodemailer from 'nodemailer';
-import fs from 'fs';
 import AppError from '../Errors/AppError';
-import httpStatus from 'http-status';
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -153,7 +151,7 @@ const sendMail = async (
   await transporter.sendMail({
     from: 'camperShop.email.@gmail.com',
     to: emailAddress,
-    subject: 'Verify your Bookix account',
+    subject: subject,
     html: html,
   });
 };
@@ -188,7 +186,6 @@ export const sendResetPasswordMail = async (
     // Sending reset password  mail
     await sendMail(emailAddress, 'Reset your password', template);
   } catch (error) {
-    console.log(error);
     throw new AppError(400, 'Something went wrong');
   }
 };
