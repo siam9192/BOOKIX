@@ -2,6 +2,8 @@ import { Router } from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { BookValidations } from './book.validations';
 import { BookController } from './book.controller';
+import auth from '../../middlewares/auth';
+import { TRole } from '../user/user.interface';
 
 const router = Router();
 
@@ -12,12 +14,16 @@ router.get('/recently-viewed', BookController.getRecentlyViewedBooks);
 router.get('/discount/:percentage', BookController.getBooksBasedOnDiscount);
 router.post(
   '/',
+  auth(TRole.ADMIN,TRole.MODERATOR),
   validateRequest(BookValidations.createBookValidation),
   BookController.createBook,
 );
-router.post('/multiple', BookController.createMultipleBooks);
-router.post('/pause-book/:bookId', BookController.pauseBook);
-router.post('/unpause-book/:bookId', BookController.unpauseBook);
+router.post('/multiple',auth(TRole.ADMIN,TRole.MODERATOR), BookController.createMultipleBooks);
+router.post('/pause-book/:bookId', auth(TRole.ADMIN,TRole.MODERATOR),BookController.pauseBook);
+router.post('/unpause-book/:bookId', auth(TRole.ADMIN,TRole.MODERATOR),BookController.unpauseBook);
+
+router.put('/',auth(TRole.ADMIN,TRole.MODERATOR),validateRequest(BookValidations.updateBookValidation),BookController.updateBook)
+
 router.delete('/:bookId', BookController.deleteBook);
 
 export const BookRouter = router;

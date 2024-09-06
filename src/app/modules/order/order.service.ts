@@ -3,10 +3,8 @@ import AppError from '../../Errors/AppError';
 import { objectId } from '../../utils/func';
 import { Book } from '../book/book.model';
 import {
-  TPaymentMethod,
   TPaymentMethodUnion,
 } from '../payment/payment.interface';
-import { Stripe } from '../../paymentMethods/stripe';
 import { Order } from './order.model';
 import { Payment } from '../payment/payment.model';
 import crypto from 'crypto';
@@ -146,7 +144,7 @@ const createOrderIntoDB = async (
   }
 
   const paymentData = {
-    transaction_id: 'PP' + crypto.randomBytes(8).toString('hex'),
+    transaction_id: 'PP' + crypto.randomBytes(8).toString('hex').toUpperCase(),
     payment_method: payload.payment_method,
     amount,
     coupon: payload.coupon || null,
@@ -208,7 +206,7 @@ const managePaymentSuccessOrdersIntoDB = async (paymentId: string) => {
 
   // Checking is the payment successfully updated
   if (!updatePayment.modifiedCount) {
-    throw new AppError(400, 'Order unsuccess full');
+    throw new AppError(400, 'Order unsuccessful');
   }
 
   // Updating order paid status

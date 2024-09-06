@@ -9,7 +9,7 @@ const router = Router();
 
 router.post(
   '/',
-  auth(TRole.MODERATOR),
+  auth(TRole.CUSTOMER),
   validateRequest(OrderValidations.createOrderValidation),
   OrderController.createOrder,
 );
@@ -19,11 +19,12 @@ router.get(
   '/payment/paypal/success',
   OrderController.managePaypalPaymentSuccessOrders,
 );
-router.get('/payment/cancel', OrderController.managePaymentCanceledOrder);
+router.get('/payment/cancel',OrderController.managePaymentCanceledOrder);
+
 router.get('/', auth(TRole.ADMIN, TRole.MODERATOR), OrderController.getOrders);
 router.get(
   '/customer/yet-to-review',
-  auth(TRole.ADMIN, TRole.MODERATOR, TRole.CUSTOMER),
+  auth(TRole.CUSTOMER),
   OrderController.getCustomerYetToReviewOrders,
 );
 

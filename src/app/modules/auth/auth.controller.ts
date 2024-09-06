@@ -81,6 +81,22 @@ const resetPasswordFromForgetPasswordRequest = catchAsync(
   },
 );
 
+const getNewAccessTokenByRefreshToken = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user.id
+    const refreshToken = req.cookies['refresh-token']
+    console.log(refreshToken)
+    const result = await AuthService.getAccessTokenByRefreshToken(
+     userId,refreshToken,
+    );
+    sendSuccessResponse(res, {
+      statusCode: httpStatus.OK,
+      message: 'New access token has been given successfully',
+      data: result,
+    });
+  },
+);
+
 export const AuthController = {
   handelSignupRequest,
   handelResendRequest,
@@ -89,4 +105,5 @@ export const AuthController = {
   changePassword,
   forgetPassword,
   resetPasswordFromForgetPasswordRequest,
+  getNewAccessTokenByRefreshToken
 };

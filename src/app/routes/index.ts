@@ -1,6 +1,6 @@
 import { IRouter, Router } from 'express';
 import { AuthRouter } from '../modules/auth/auth.route';
-import { BookRouter } from '../modules/book/book.router';
+import { BookRouter } from '../modules/book/book.route';
 import { CartRouter } from '../modules/cart/cart.route';
 import { AuthorRouter } from '../modules/author/author.route';
 import { WishBookRouter } from '../modules/wishBook/wishBook.route';
@@ -8,6 +8,8 @@ import { CouponRouter } from '../modules/coupon/coupon.route';
 import { OrderRouter } from '../modules/order/order.route';
 import { UserRouter } from '../modules/user/user.route';
 import { NotificationRouter } from '../modules/notification/notification.route';
+import { ReviewRouter } from '../modules/review/review.route';
+import { PaymentRouter } from '../modules/payment/payment.route';
 
 const router = Router();
 
@@ -47,9 +49,17 @@ const moduleRoutes: TModuleRoutes = [
     router: OrderRouter,
   },
   {
+    path: '/reviews',
+    router: ReviewRouter,
+  },
+  {
     path: '/notifications',
     router: NotificationRouter,
   },
+  {
+    path:'/payments',
+    router:PaymentRouter
+  }
 ];
 const routes = moduleRoutes.map((route) =>
   router.use(route.path, route.router),

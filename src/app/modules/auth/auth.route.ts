@@ -8,6 +8,7 @@ import { TRole } from '../user/user.interface';
 
 const router = Router();
 
+
 router.post(
   '/signup-request',
   validateRequest(
@@ -28,6 +29,7 @@ router.post(
   AuthController.forgetPassword,
 );
 
+
 router.patch(
   '/change-password',
   auth(...Object.values(TRole)),
@@ -39,4 +41,9 @@ router.patch(
   validateRequest(AuthValidations.resetPasswordValidation),
   AuthController.resetPasswordFromForgetPasswordRequest,
 );
+
+router.get('/new-access-token',auth(...Object.values(TRole)),AuthController.getNewAccessTokenByRefreshToken)
+
+
+
 export const AuthRouter = router;

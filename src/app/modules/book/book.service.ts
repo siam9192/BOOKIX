@@ -16,21 +16,29 @@ const createMultipleBooksIntoDB = async (payload: TBook[]) => {
 };
 
 const getBooksFromDB = async (query: any) => {
-  const model = Book.find();
 
   // Get books which are not paused and not deleted
   query.is_paused = false;
   query.is_deleted = false;
 
   // Filtering books
-  const result = await new QueryBuilder(model, query)
+  const result = await new QueryBuilder(Book.find(), query)
     .textSearch()
     .find()
     .sort()
     .paginate()
     .project('name', 'price', 'cover_images', 'rating')
     .get();
-  return result;
+  const meta =  await new QueryBuilder(Book.find(), query)
+  .textSearch()
+  .find()
+  .sort()
+  .project('name', 'price', 'cover_images', 'rating')
+  .getMeta();
+  return {
+    result,
+    meta
+  };
 };
 
 const getBookFromDB = async (bookId: string) => {

@@ -37,21 +37,17 @@ function auth(...requiredRoles: TRoleUnion[]) {
       throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-
-    const isDeleted = user?.isDeleted;
-
-    if (isDeleted) {
-      throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
+    if (user.is_deleted) {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted ! !');
     }
 
+    
     // checking if the user is blocked
 
     if (user.is_blocked) {
       throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
     }
-    if (user.isDeleted) {
-      throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted ! !');
-    }
+    
 
     // if (
     //   user.passwordChangedAt &&
@@ -67,7 +63,7 @@ function auth(...requiredRoles: TRoleUnion[]) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized  !');
     }
 
-    req.user = decoded as JwtPayload & { role: string };
+    req.user = decoded as JwtPayload & {id:string,role: string };
 
     next();
   });

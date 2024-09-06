@@ -4,7 +4,11 @@ class QueryBuilder<T> {
   constructor(
     public modelQuery: Query<T[], T>,
     private query: any,
-  ) {}
+  ) {
+  }
+ 
+  private defaultPage = 1
+  private defaultLimit = 12
 
   search(searchableFields: string[]) {
     const searchTerm = this?.query?.searchTerm;
@@ -73,6 +77,18 @@ class QueryBuilder<T> {
       });
     }
     return this;
+  }
+  async getMeta(){
+    const total = await this.modelQuery.countDocuments()
+    const page = Number(this.query.page)||this.defaultPage
+    const limit = Number( this.query.limit) || this.defaultLimit
+    const pages = [...Array(Math.ceil(total/limit)).keys()].map(page=>page+1)
+    return {
+      page,
+      pages,
+      limit,
+      total
+    }
   }
 }
 

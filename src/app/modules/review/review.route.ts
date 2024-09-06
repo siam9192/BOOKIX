@@ -19,10 +19,10 @@ router.get('/:bookId', ReviewController.getBookReviews);
 router.delete('/:reviewId', auth(TRole.CUSTOMER), ReviewController.deleteReview);
 
 router.patch(
-  ':/reviewId',
+  '/:reviewId',
   auth(TRole.CUSTOMER),
   validateRequest(reviewValidations.reviewUpdateValidation),
   ReviewController.updateReview,
 );
 
-export const reviewRoutes = router;
+export const ReviewRouter = router;

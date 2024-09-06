@@ -26,6 +26,7 @@ router.get(
 );
 router.get(
   '/code/:code',
+  auth(TRole.CUSTOMER),
   auth(...Object.values(TRole)),
   CouponController.getCouponByCode,
 );

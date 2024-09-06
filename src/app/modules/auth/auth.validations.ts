@@ -20,9 +20,15 @@ export const changePasswordValidation = z.object({
   current_password: z.string().min(6),
   new_password: z.string().min(6),
 });
+
+const newAccessTokenRequestValidationRequest = z.object({
+  refreshToken:z.string()
+})
+
 export const AuthValidations = {
   loginValidation,
   forgetPasswordRequestValidation,
   resetPasswordValidation,
   changePasswordValidation,
+  newAccessTokenRequestValidationRequest
 };

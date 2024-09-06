@@ -76,7 +76,7 @@ const login = async (payload: TSignInPayload) => {
   }
 
   // Comparing password
-  const isMatched = await bcryptCompare(payload.password, user.password);
+  const isMatched = await bcryptCompare(payload.password, user.password!);
 
   // Checking is password correct
   if (!isMatched) {
@@ -116,7 +116,7 @@ const changePasswordIntoDB = async (
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
-  const matchPassword = bcryptCompare(payload.current_password, user?.password);
+  const matchPassword = bcryptCompare(payload.current_password, user?.password!);
   if (!matchPassword) {
     throw new AppError(
       httpStatus.NOT_ACCEPTABLE,
@@ -124,7 +124,7 @@ const changePasswordIntoDB = async (
     );
   }
 
-  // Hashing new password using bcrypt
+  // Hashed new password using bcrypt
   const hashedNewPassword = await bcryptHash(payload.new_password);
 
   const result = await User.updateOne(
@@ -139,6 +139,8 @@ const changePasswordIntoDB = async (
 
   return true;
 };
+
+
 
 const forgetPassword = async (email: string) => {
   const user = await User.findOne({
@@ -162,6 +164,8 @@ const forgetPassword = async (email: string) => {
   );
   await sendResetPasswordMail(user.email, token);
 };
+
+
 
 const resetPasswordFromForgetPasswordRequest = async (payload: {
   token: string;
@@ -201,6 +205,43 @@ const resetPasswordFromForgetPasswordRequest = async (payload: {
   }
 };
 
+
+const getAccessTokenByRefreshToken = async(userId:string,refreshToken:string)=>{
+ try {
+  const decode = verifyToken(refreshToken,config.jwt_refresh_token_secret as string) as JwtPayload & {id:string,role: string };
+ if(!decode){
+  throw new Error()
+ }
+
+ if(userId !== decode.id){
+  throw new Error()
+ }
+ const user = await User.findById(decode.id) 
+ if(!user){
+  throw new Error()
+ }
+     
+ const tokenPayload = {
+  id: user._id,
+  role: user.role,
+};
+
+  // Generating access token
+  const accessToken =  generateJwtToken(
+    tokenPayload,
+    config.jwt_access_secret as string,
+    '30d',
+  );
+  return {
+    accessToken
+  }
+ } catch (error) {
+  throw new AppError(httpStatus.UNAUTHORIZED,'You are unauthorized!')
+ }
+}
+
+
+
 export const AuthService = {
   signUpRequest,
   signUpVerify,
@@ -209,4 +250,5 @@ export const AuthService = {
   changePasswordIntoDB,
   forgetPassword,
   resetPasswordFromForgetPasswordRequest,
+  getAccessTokenByRefreshToken
 };
