@@ -2,7 +2,6 @@ import { model, Schema } from 'mongoose';
 import { TReview, TReviewMethods } from './review.interface';
 
 const reviewSchema = new Schema<TReview>({
- 
   images: {
     type: [String],
     required: true,
@@ -33,7 +32,7 @@ const reviewSchema = new Schema<TReview>({
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-  }
+  },
 });
 
 reviewSchema.statics.isReviewExists = async (id) => {

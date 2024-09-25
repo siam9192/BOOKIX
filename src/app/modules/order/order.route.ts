@@ -19,7 +19,7 @@ router.get(
   '/payment/paypal/success',
   OrderController.managePaypalPaymentSuccessOrders,
 );
-router.get('/payment/cancel',OrderController.managePaymentCanceledOrder);
+router.get('/payment/cancel', OrderController.managePaymentCanceledOrder);
 
 router.get('/', auth(TRole.ADMIN, TRole.MODERATOR), OrderController.getOrders);
 router.get(

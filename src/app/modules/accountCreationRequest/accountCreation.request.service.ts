@@ -1,7 +1,12 @@
 import httpStatus from 'http-status';
 import AppError from '../../Errors/AppError';
 import { User } from '../user/user.model';
-import { generateJwtToken, generateOTP, verifyToken } from '../../utils/func';
+import {
+  generateJwtToken,
+  generateOTP,
+  objectId,
+  verifyToken,
+} from '../../utils/func';
 import config from '../../config';
 import { JwtPayload } from 'jsonwebtoken';
 import { bcryptCompare, bcryptHash } from '../../utils/bycrypt';
@@ -69,12 +74,11 @@ const verifyOtpFromDB = async (payload: { secret: string; otp: string }) => {
 
   // Finding data
   const data = await AccountCreationRequest.findOne({
-    _id: new Types.ObjectId(decode.id),
-    email: decode.email,
+    _id: objectId(decode.id),
   });
 
   if (!data) {
-    throw new AppError(400, 'Something went wrong');
+    throw new AppError(400, 'OTP expired!');
   }
   const verifyOtp = await bcryptCompare(payload.otp, data.otp);
 
@@ -128,8 +132,8 @@ const resendOtp = async (payload: { secret: string; requestTime: string }) => {
   }
 
   const accountCreationRequest = await AccountCreationRequest.findOne({
-    _id: new Types.ObjectId(decode.id),
-    email: decode.email,
+    _id: objectId(decode.id),
+    // email: decode.email,
   });
 
   // Checking request existence

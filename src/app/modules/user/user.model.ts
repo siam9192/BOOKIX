@@ -53,6 +53,10 @@ const userSchema = new Schema<TUser>(
       enum: Object.values(TGender),
       default: null,
     },
+    google_id: {
+      type: String,
+      default: null,
+    },
     email: {
       type: String,
       required: true,

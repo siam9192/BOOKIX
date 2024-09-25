@@ -16,7 +16,11 @@ router.post(
 
 router.get('/:bookId', ReviewController.getBookReviews);
 
-router.delete('/:reviewId', auth(TRole.CUSTOMER), ReviewController.deleteReview);
+router.delete(
+  '/:reviewId',
+  auth(TRole.CUSTOMER),
+  ReviewController.deleteReview,
+);
 
 router.patch(
   '/:reviewId',

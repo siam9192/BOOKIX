@@ -58,6 +58,7 @@ const createBookValidation = z.object({
   cover_images: z.array(z.string()).optional(),
   publisher: PublisherSchema,
   additional_info: AdditionalInfoSchema.optional(),
+  available_stock: z.number(),
 });
 
 const updateBookValidation = createBookValidation.partial();

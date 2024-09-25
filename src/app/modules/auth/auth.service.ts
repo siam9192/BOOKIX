@@ -11,8 +11,70 @@ import config from '../../config';
 import { UserService } from '../user/user.service';
 import { sendResetPasswordMail } from '../../utils/sendEmail';
 import { JwtPayload } from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+import axios from 'axios';
 
-const googleCallback = async (payload: TUser) => {
+const googleCallback = async ({
+  accessToken: googleAccessToken,
+}: {
+  accessToken: string;
+}) => {
+  try {
+    const { data } = await axios.get(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${googleAccessToken}`,
+        },
+      },
+    );
+
+    let tokenPayload;
+
+    const user = await User.findOne({ email: data.email });
+
+    // Checking user existence if user found then generate refresh token and access token otherwise create a user and then  generate refresh token and access token 
+    if (user) {
+      tokenPayload = {
+        id: user._id,
+        role: user.role,
+      };
+    } else {
+      const userData = {
+        email: data.email,
+        google_id: data.id,
+        registered_by: TRegistrationOption.GOOGLE_AUTH,
+      };
+      const user = await User.create(userData);
+
+      tokenPayload = {
+        id: user.id,
+        role: user.role,
+      };
+    }
+    // Generating access token
+    const accessToken = await generateJwtToken(
+      tokenPayload,
+      config.jwt_access_secret as string,
+      '30d',
+    );
+    // Generating refresh token
+    const refreshToken = await generateJwtToken(
+      tokenPayload,
+      config.jwt_refresh_token_secret as string,
+      config.jwt_refresh_token_expire_time as string,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  } catch (error) {
+    throw new AppError(400, 'Something went wrong');
+  }
+};
+
+const googleCallback1 = async (payload: TUser) => {
   const user = await User.findOne({
     email: payload.email,
     registered_by: TRegistrationOption.GOOGLE_AUTH,
@@ -116,7 +178,10 @@ const changePasswordIntoDB = async (
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
-  const matchPassword = bcryptCompare(payload.current_password, user?.password!);
+  const matchPassword = bcryptCompare(
+    payload.current_password,
+    user?.password!,
+  );
   if (!matchPassword) {
     throw new AppError(
       httpStatus.NOT_ACCEPTABLE,
@@ -140,8 +205,6 @@ const changePasswordIntoDB = async (
   return true;
 };
 
-
-
 const forgetPassword = async (email: string) => {
   const user = await User.findOne({
     email: email,
@@ -164,8 +227,6 @@ const forgetPassword = async (email: string) => {
   );
   await sendResetPasswordMail(user.email, token);
 };
-
-
 
 const resetPasswordFromForgetPasswordRequest = async (payload: {
   token: string;
@@ -205,44 +266,48 @@ const resetPasswordFromForgetPasswordRequest = async (payload: {
   }
 };
 
+const getAccessTokenByRefreshToken = async (
+  userId: string,
+  refreshToken: string,
+) => {
+  try {
+    const decode = verifyToken(
+      refreshToken,
+      config.jwt_refresh_token_secret as string,
+    ) as JwtPayload & { id: string; role: string };
+    if (!decode) {
+      throw new Error();
+    }
 
-const getAccessTokenByRefreshToken = async(userId:string,refreshToken:string)=>{
- try {
-  const decode = verifyToken(refreshToken,config.jwt_refresh_token_secret as string) as JwtPayload & {id:string,role: string };
- if(!decode){
-  throw new Error()
- }
+    if (userId !== decode.id) {
+      throw new Error();
+    }
+    const user = await User.findById(decode.id);
+    if (!user) {
+      throw new Error();
+    }
 
- if(userId !== decode.id){
-  throw new Error()
- }
- const user = await User.findById(decode.id) 
- if(!user){
-  throw new Error()
- }
-     
- const tokenPayload = {
-  id: user._id,
-  role: user.role,
+    const tokenPayload = {
+      id: user._id,
+      role: user.role,
+    };
+
+    // Generating access token
+    const accessToken = generateJwtToken(
+      tokenPayload,
+      config.jwt_access_secret as string,
+      '30d',
+    );
+    return {
+      accessToken,
+    };
+  } catch (error) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'You are unauthorized!');
+  }
 };
 
-  // Generating access token
-  const accessToken =  generateJwtToken(
-    tokenPayload,
-    config.jwt_access_secret as string,
-    '30d',
-  );
-  return {
-    accessToken
-  }
- } catch (error) {
-  throw new AppError(httpStatus.UNAUTHORIZED,'You are unauthorized!')
- }
-}
-
-
-
 export const AuthService = {
+  googleCallback,
   signUpRequest,
   signUpVerify,
   resendOtp,
@@ -250,5 +315,5 @@ export const AuthService = {
   changePasswordIntoDB,
   forgetPassword,
   resetPasswordFromForgetPasswordRequest,
-  getAccessTokenByRefreshToken
+  getAccessTokenByRefreshToken,
 };

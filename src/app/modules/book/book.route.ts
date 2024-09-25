@@ -12,17 +12,37 @@ router.get('/featured', BookController.getFeaturedBooks);
 router.get('/suggested', BookController.getSuggestBooks);
 router.get('/recently-viewed', BookController.getRecentlyViewedBooks);
 router.get('/discount/:percentage', BookController.getBooksBasedOnDiscount);
+router.get('/related-books/:bookId', BookController.getRelatedBooks);
+router.get('/:bookId', BookController.getBook);
+
 router.post(
   '/',
-  auth(TRole.ADMIN,TRole.MODERATOR),
+  auth(TRole.ADMIN, TRole.MODERATOR),
   validateRequest(BookValidations.createBookValidation),
   BookController.createBook,
 );
-router.post('/multiple',auth(TRole.ADMIN,TRole.MODERATOR), BookController.createMultipleBooks);
-router.post('/pause-book/:bookId', auth(TRole.ADMIN,TRole.MODERATOR),BookController.pauseBook);
-router.post('/unpause-book/:bookId', auth(TRole.ADMIN,TRole.MODERATOR),BookController.unpauseBook);
+router.post(
+  '/multiple',
+  auth(TRole.ADMIN, TRole.MODERATOR),
+  BookController.createMultipleBooks,
+);
+router.post(
+  '/pause-book/:bookId',
+  auth(TRole.ADMIN, TRole.MODERATOR),
+  BookController.pauseBook,
+);
+router.post(
+  '/unpause-book/:bookId',
+  auth(TRole.ADMIN, TRole.MODERATOR),
+  BookController.unpauseBook,
+);
 
-router.put('/',auth(TRole.ADMIN,TRole.MODERATOR),validateRequest(BookValidations.updateBookValidation),BookController.updateBook)
+router.put(
+  '/',
+  auth(TRole.ADMIN, TRole.MODERATOR),
+  validateRequest(BookValidations.updateBookValidation),
+  BookController.updateBook,
+);
 
 router.delete('/:bookId', BookController.deleteBook);
 

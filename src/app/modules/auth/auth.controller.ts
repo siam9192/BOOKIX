@@ -5,6 +5,14 @@ import { sendSuccessResponse } from '../../utils/response';
 import httpStatus from 'http-status';
 import config from '../../config';
 
+const handelGoogleCallback = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.googleCallback(req.body);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Login successful',
+    data: result,
+  });
+});
 const handelSignupRequest = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.signUpRequest(req.body);
   sendSuccessResponse(res, {
@@ -34,18 +42,10 @@ const handelSignupVerify = catchAsync(async (req: Request, res: Response) => {
 
 const handelLogin = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.login(req.body);
-  res.cookie('refresh-token', result.refreshToken, {
-    secure: false,
-    sameSite: true,
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-  });
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Login in successful',
-    data: {
-      accessToken: result.accessToken,
-    },
+    data: result,
   });
 });
 
@@ -83,11 +83,11 @@ const resetPasswordFromForgetPasswordRequest = catchAsync(
 
 const getNewAccessTokenByRefreshToken = catchAsync(
   async (req: Request, res: Response) => {
-    const userId = req.user.id
-    const refreshToken = req.cookies['refresh-token']
-    console.log(refreshToken)
+    const userId = req.user.id;
+    const refreshToken = req.cookies['refresh-token'];
     const result = await AuthService.getAccessTokenByRefreshToken(
-     userId,refreshToken,
+      userId,
+      refreshToken,
     );
     sendSuccessResponse(res, {
       statusCode: httpStatus.OK,
@@ -98,6 +98,7 @@ const getNewAccessTokenByRefreshToken = catchAsync(
 );
 
 export const AuthController = {
+  handelGoogleCallback,
   handelSignupRequest,
   handelResendRequest,
   handelSignupVerify,
@@ -105,5 +106,5 @@ export const AuthController = {
   changePassword,
   forgetPassword,
   resetPasswordFromForgetPasswordRequest,
-  getNewAccessTokenByRefreshToken
+  getNewAccessTokenByRefreshToken,
 };

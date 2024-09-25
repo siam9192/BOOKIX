@@ -13,7 +13,6 @@ const getPayments = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 export const PaymentController = {
-    getPayments
-}
+  getPayments,
+};

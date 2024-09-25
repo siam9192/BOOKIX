@@ -57,9 +57,9 @@ const moduleRoutes: TModuleRoutes = [
     router: NotificationRouter,
   },
   {
-    path:'/payments',
-    router:PaymentRouter
-  }
+    path: '/payments',
+    router: PaymentRouter,
+  },
 ];
 const routes = moduleRoutes.map((route) =>
   router.use(route.path, route.router),

@@ -43,6 +43,11 @@ const getCartItemsFromDB = async (userId: string) => {
   return await Cart.find({ user: objectId(userId) }).populate('book');
 };
 
+const getLocalCartItems = async (payload: { ids: [] }) => {
+  const ids = payload.ids.map((id) => objectId);
+  return await Cart.find();
+};
+
 const updateCartItemQuantityIntoDB = async (
   userId: string,
   payload: { itemId: string; quantity: number },

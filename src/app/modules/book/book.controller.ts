@@ -31,7 +31,7 @@ const getBooks = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getBook = catchAsync(async (req: Request, res: Response) => {
-  const bookId = req.params.id;
+  const bookId = req.params.bookId;
   const result = await BookService.getBookFromDB(bookId);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
@@ -121,6 +121,16 @@ const getBooksBasedOnDiscount = catchAsync(
   },
 );
 
+const getRelatedBooks = catchAsync(async (req: Request, res: Response) => {
+  const bookId = req.params.bookId;
+  const result = await BookService.getRelatedBooksFromDB(bookId);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Related Books retrieved successfully',
+    data: result,
+  });
+});
+
 export const BookController = {
   createBook,
   createMultipleBooks,
@@ -129,9 +139,10 @@ export const BookController = {
   getFeaturedBooks,
   getSuggestBooks,
   getRecentlyViewedBooks,
+  getBooksBasedOnDiscount,
+  getRelatedBooks,
   updateBook,
   deleteBook,
   pauseBook,
   unpauseBook,
-  getBooksBasedOnDiscount,
 };

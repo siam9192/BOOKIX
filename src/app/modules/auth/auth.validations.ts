@@ -11,6 +11,7 @@ const loginValidation = z.object({
 const forgetPasswordRequestValidation = z.object({
   email: z.string().email(),
 });
+
 const resetPasswordValidation = z.object({
   token: z.string(),
   new_password: z.string().min(6),
@@ -22,13 +23,19 @@ export const changePasswordValidation = z.object({
 });
 
 const newAccessTokenRequestValidationRequest = z.object({
-  refreshToken:z.string()
-})
+  refreshToken: z.string(),
+});
 
+export const googleCallbackValidation = z.object({
+  accessToken: z.string({ required_error: 'Access token is required' }),
+});
+
+// const google
 export const AuthValidations = {
+  googleCallbackValidation,
   loginValidation,
   forgetPasswordRequestValidation,
   resetPasswordValidation,
   changePasswordValidation,
-  newAccessTokenRequestValidationRequest
+  newAccessTokenRequestValidationRequest,
 };

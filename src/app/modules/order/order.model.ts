@@ -102,7 +102,7 @@ const orderBookSchema = new Schema<TOrderBook>({
 
 const orderSchema = new Schema<TOrder>(
   {
-    books: {
+    items: {
       type: [orderBookSchema],
       required: true,
     },

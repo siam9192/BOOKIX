@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { TName, TRoleUnion } from '../user/user.interface';
+import { TName } from '../user/user.interface';
 
 // 1. Contact Details
 export type TContact = {
@@ -55,7 +55,7 @@ export type TOrderBook = {
 
 // 7. Order Information
 export type TOrder = {
-  books: TOrderBook[];
+  items: TOrderBook[];
   delivery_details: TDeliveryDetails;
   payment: Types.ObjectId;
   status: (typeof TOrderStatus)[keyof typeof TOrderStatus];

@@ -59,6 +59,7 @@ export type TUser = {
   date_of_birth: string;
   gender: (typeof TGender)[keyof typeof TGender];
   profile_photo: string;
+  google_id?: string;
   email: string;
   password?: string;
   role: (typeof TRole)[keyof typeof TRole];

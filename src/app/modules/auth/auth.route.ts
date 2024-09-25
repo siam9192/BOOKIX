@@ -7,7 +7,11 @@ import auth from '../../middlewares/auth';
 import { TRole } from '../user/user.interface';
 
 const router = Router();
-
+router.post(
+  '/google-callback',
+  validateRequest(AuthValidations.googleCallbackValidation),
+  AuthController.handelGoogleCallback,
+);
 
 router.post(
   '/signup-request',
@@ -16,19 +20,26 @@ router.post(
   ),
   AuthController.handelSignupRequest,
 );
-router.post('/signup-request/resend-otp', AuthController.handelResendRequest);
+
+router.post(
+  '/signup-request/resend-otp',
+  validateRequest(AccountCreationRequestValidations.resendOtpValidation),
+  AuthController.handelResendRequest,
+);
+
 router.post('/signup-request/verify', AuthController.handelSignupVerify);
+
 router.post(
   '/login',
   validateRequest(AuthValidations.loginValidation),
   AuthController.handelLogin,
 );
+
 router.post(
   '/forget-password',
   validateRequest(AuthValidations.forgetPasswordRequestValidation),
   AuthController.forgetPassword,
 );
-
 
 router.patch(
   '/change-password',
@@ -36,14 +47,17 @@ router.patch(
   validateRequest(AuthValidations.changePasswordValidation),
   AuthController.changePassword,
 );
+
 router.patch(
   '/forget-password/reset-password',
   validateRequest(AuthValidations.resetPasswordValidation),
   AuthController.resetPasswordFromForgetPasswordRequest,
 );
 
-router.get('/new-access-token',auth(...Object.values(TRole)),AuthController.getNewAccessTokenByRefreshToken)
-
-
+router.get(
+  '/new-access-token',
+  auth(...Object.values(TRole)),
+  AuthController.getNewAccessTokenByRefreshToken,
+);
 
 export const AuthRouter = router;

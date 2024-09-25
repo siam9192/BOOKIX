@@ -12,11 +12,10 @@ const createNotificationIntoDB = async (payload: TNotificationRequestBody) => {
         $push: { notifications: { notification: notification._id } },
       });
     });
-  } else if(payload.users === '**') {
+  } else if (payload.users === '**') {
     await User.updateMany({}, { $push: { notifications: notification._id } });
-  }
-  else {
-    throw new AppError(400,'Something went wrong')
+  } else {
+    throw new AppError(400, 'Something went wrong');
   }
 };
 
@@ -30,13 +29,14 @@ const getUserNotificationsFromDB = async (userId: string) => {
 const makeAsReadNotificationsIntoDB = async (userId: string) => {
   const result = await User.findOneAndUpdate(
     {
-      _id:objectId(userId)
-    }
-    ,
+      _id: objectId(userId),
+    },
     { 'notifications.$[].read': true },
-    { runValidators: true,new:true },
-  ).select('notifications').populate('notifications.notification');
-  return result
+    { runValidators: true, new: true },
+  )
+    .select('notifications')
+    .populate('notifications.notification');
+  return result;
 };
 
 export const NotificationService = {

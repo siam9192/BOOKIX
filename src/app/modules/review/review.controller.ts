@@ -5,8 +5,8 @@ import { sendSuccessResponse } from '../../utils/response';
 import httpStatus from 'http-status';
 
 const createReview = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.id
-  const result = await ReviewService.createReviewIntoDB(userId,req.body);
+  const userId = req.user.id;
+  const result = await ReviewService.createReviewIntoDB(userId, req.body);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Review created successfully',
@@ -24,24 +24,19 @@ const deleteReview = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getBookReviews = catchAsync(
-  async (req: Request, res: Response) => {
-    const bookId = req.params.bookId;
-    const result = await ReviewService.getBookReviewsFromDB(bookId,req.body)
-    sendSuccessResponse(res, {
-      statusCode: httpStatus.OK,
-      message: 'Review retrieved successfully',
-      data: result,
-    });
-  },
-);
+const getBookReviews = catchAsync(async (req: Request, res: Response) => {
+  const bookId = req.params.bookId;
+  const result = await ReviewService.getBookReviewsFromDB(bookId, req.body);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Review retrieved successfully',
+    data: result,
+  });
+});
 
 const updateReview = catchAsync(async (req: Request, res: Response) => {
-  const reviewId= req.params.reviewId;
-  const result = await ReviewService.updateReviewIntoDB(
-    reviewId,
-    req.body,
-  );
+  const reviewId = req.params.reviewId;
+  const result = await ReviewService.updateReviewIntoDB(reviewId, req.body);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Review updated successfully',
@@ -53,5 +48,5 @@ export const ReviewController = {
   createReview,
   deleteReview,
   getBookReviews,
-  updateReview
+  updateReview,
 };

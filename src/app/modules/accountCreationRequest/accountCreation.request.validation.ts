@@ -15,7 +15,13 @@ const verifyOtpValidations = z.object({
   secret: z.string(),
   otp: z.string(),
 });
+const resendOtpValidation = z.object({
+  secret: z.string(),
+  requestTime: z.string(),
+});
+
 export const AccountCreationRequestValidations = {
   createAccountCreationRequestValidation,
   verifyOtpValidations,
+  resendOtpValidation,
 };

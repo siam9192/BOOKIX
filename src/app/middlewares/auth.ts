@@ -41,13 +41,11 @@ function auth(...requiredRoles: TRoleUnion[]) {
       throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted ! !');
     }
 
-    
     // checking if the user is blocked
 
     if (user.is_blocked) {
       throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
     }
-    
 
     // if (
     //   user.passwordChangedAt &&
@@ -63,7 +61,7 @@ function auth(...requiredRoles: TRoleUnion[]) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized  !');
     }
 
-    req.user = decoded as JwtPayload & {id:string,role: string };
+    req.user = decoded as JwtPayload & { id: string; role: string };
 
     next();
   });

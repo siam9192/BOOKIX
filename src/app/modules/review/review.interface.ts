@@ -6,7 +6,7 @@ export type TReview = {
   rating: number;
   is_hidden?: boolean;
   book: Types.ObjectId;
-  order:Types.ObjectId
+  order: Types.ObjectId;
   customer: Types.ObjectId;
 };
 

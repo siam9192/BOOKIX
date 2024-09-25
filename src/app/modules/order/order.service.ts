@@ -2,9 +2,7 @@ import httpStatus from 'http-status';
 import AppError from '../../Errors/AppError';
 import { objectId } from '../../utils/func';
 import { Book } from '../book/book.model';
-import {
-  TPaymentMethodUnion,
-} from '../payment/payment.interface';
+import { TPaymentMethodUnion } from '../payment/payment.interface';
 import { Order } from './order.model';
 import { Payment } from '../payment/payment.model';
 import crypto from 'crypto';
@@ -161,7 +159,7 @@ const createOrderIntoDB = async (
     }
 
     const orderData = {
-      books: purchasedBooks.map((book) => ({
+      items: purchasedBooks.map((book) => ({
         book: book.book,
         quantity: book.quantity,
         unit_price: book.unit_price,
@@ -219,7 +217,7 @@ const managePaymentSuccessOrdersIntoDB = async (paymentId: string) => {
   // Updating books available_stock
   if (orderedBooks) {
     Promise.all(
-      orderedBooks.books.map((item) =>
+      orderedBooks.items.map((item) =>
         Book.findByIdAndUpdate(item.book, {
           $inc: { available_stock: -item.quantity },
         }),
@@ -267,7 +265,7 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
       // Updating books available_stock
       if (orderedBooks) {
         await Promise.all(
-          orderedBooks.books.map((item) =>
+          orderedBooks.items.map((item) =>
             Book.findByIdAndUpdate(
               item.book,
               { $inc: { available_stock: -item.quantity } },
@@ -278,14 +276,15 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
           throw new Error();
         });
       }
-      
+
       await NotificationService.createNotificationIntoDB({
-        notification:{
-          title:'Your order successfully placed`',
-          description:'Thanks for your order.We will deliver your order as soon as possible'
+        notification: {
+          title: 'Your order successfully placed`',
+          description:
+            'Thanks for your order.We will deliver your order as soon as possible',
         },
-        users:[payment.user.toString()]
-      })      
+        users: [payment.user.toString()],
+      });
       await session.commitTransaction();
       session.endSession;
       res.redirect('https://www.youtube.com/watch?v=1xyPf6Rm2Nw');
@@ -310,6 +309,14 @@ const managePaymentCanceledOrderIntoDB = async (paymentId: string) => {
 
 const getOrdersFromDB = async (query: any) => {
   const result = await Order.aggregate([
+    {
+      $lookup: {
+        from: 'items',
+        localField: 'items.book',
+        foreignField: '_id',
+        as: 'payment',
+      },
+    },
     {
       $lookup: {
         from: 'payments',
