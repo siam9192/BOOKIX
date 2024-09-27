@@ -2,6 +2,7 @@ export enum TCouponDiscountType {
   PERCENTAGE = 'Percentage',
   FIXED = 'Fixed',
 }
+
 export type TCoupon = {
   coupon_code: string;
   description: string;

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import { CouponService } from './coupon.service';
-import httpStatus, { REQUESTED_RANGE_NOT_SATISFIABLE } from 'http-status';
+import httpStatus from 'http-status';
 import { sendSuccessResponse } from '../../utils/response';
 
 const createCoupon = catchAsync(async (req: Request, res: Response) => {
@@ -22,12 +22,23 @@ const getCouponByCode = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 const getCouponById = catchAsync(async (req: Request, res: Response) => {
   const couponId = req.params.couponId;
   const result = await CouponService.getCouponByIdFromDB(couponId);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Coupon retrieved successfully',
+    data: result,
+  });
+});
+
+const applyCoupon =  catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const result = await CouponService.applyCoupon(req.body,userId);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Coupon applied successfully',
     data: result,
   });
 });
@@ -64,6 +75,7 @@ const deleteCoupon = catchAsync(async (req: Request, res: Response) => {
 export const CouponController = {
   createCoupon,
   getCouponByCode,
+  applyCoupon,
   getCouponById,
   getCoupons,
   updateCoupon,

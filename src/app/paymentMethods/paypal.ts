@@ -1,6 +1,8 @@
 import paypal from 'paypal-rest-sdk';
 import config from '../config';
 import { Response } from 'express';
+import AppError from '../Errors/AppError';
+import httpStatus from 'http-status';
 
 paypal.configure({
   mode: 'sandbox',
@@ -86,13 +88,13 @@ const refund = (saleId: string, amount: number) => {
     paypal.sale.refund(saleId, data, function (error, refund) {
       if (error) {
         // throw new Error()
-        console.log(error);
+        throw new AppError(400,"Something went wrong")
       } else {
         console.log('Refund success full');
       }
     });
   } catch (error) {
-    console.log(error);
+    throw new AppError(400,"Something went wrong")
   }
 };
 

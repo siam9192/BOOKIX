@@ -17,7 +17,7 @@ export type TAddress = {
   apartment_number: string;
   city: string;
   state: string;
-  county: string;
+  country: string;
 };
 
 export type TBillingAddress = TAddress;
@@ -57,6 +57,7 @@ export type TOrderBook = {
 export type TOrder = {
   items: TOrderBook[];
   delivery_details: TDeliveryDetails;
+  customer_message:string,
   payment: Types.ObjectId;
   status: (typeof TOrderStatus)[keyof typeof TOrderStatus];
   cancel_details: {
@@ -65,4 +66,5 @@ export type TOrder = {
   };
   is_returned: boolean;
   customer: Types.ObjectId;
+
 };

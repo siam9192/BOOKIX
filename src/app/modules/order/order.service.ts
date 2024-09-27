@@ -17,23 +17,24 @@ const createOrderIntoDB = async (
   res: Response,
   userId: string,
   payload: {
-    books: { bookId: string; quantity: number }[];
+    items: { bookId: string; quantity: number }[];
     delivery_details: TDeliveryDetails;
+    customer_message:string;
     coupon?: string;
     payment_method: TPaymentMethodUnion;
   },
 ) => {
-  const bookObjectIds = payload.books.map((book) => objectId(book.bookId));
+  const bookObjectIds = payload.items.map((book) => objectId(book.bookId));
   const books = await Book.find({ _id: { $in: bookObjectIds } });
 
   //  Checking is get all books correctly
-  if (books.length !== payload.books.length) {
+  if (books.length !== payload.items.length) {
     throw new AppError(httpStatus.NOT_FOUND, 'Book not found');
   }
 
   const purchasedBooks: any[] = [];
 
-  payload.books.forEach((book) => {
+  payload.items.forEach((book) => {
     const foundedBook = books.find(
       (dbBook) => dbBook._id.toString() === book.bookId,
     );
@@ -88,7 +89,7 @@ const createOrderIntoDB = async (
   };
 
   if (payload.coupon) {
-    const coupon = await Coupon.findById(payload.coupon);
+    const coupon = await Coupon.findOne({coupon_code:payload.coupon});
     const currentDate = new Date();
     // Checking coupon existence
     if (!coupon) {
@@ -158,7 +159,7 @@ const createOrderIntoDB = async (
       throw new Error();
     }
 
-    const orderData = {
+    const orderData:any = {
       items: purchasedBooks.map((book) => ({
         book: book.book,
         quantity: book.quantity,
@@ -168,6 +169,10 @@ const createOrderIntoDB = async (
       payment: payment[0]._id,
       customer: userId,
     };
+
+    if(payload.customer_message){
+      orderData.customer_message =payload.customer_message
+    }
 
     // Creating order into db
     const order = await Order.create([orderData], { session });
@@ -182,6 +187,7 @@ const createOrderIntoDB = async (
 
     await Paypal.pay(res, amount.total, payment[0]._id.toString());
   } catch (error) {
+    console.log(error)
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(400, 'Something went wrong');
@@ -232,6 +238,7 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
   res: Response,
   query: { PayerID: string; paymentId: string; orderPaymentId: string },
 ) => {
+  console.log(query)
   const manageOrder = async (saleId: string) => {
     const payment = await Payment.findById(query.orderPaymentId);
 
@@ -254,13 +261,14 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
       if (!updatePayment.modifiedCount) {
         throw new Error();
       }
+   
 
       // Updating order paid status
       const orderedBooks = await Order.findOneAndUpdate(
         { payment: objectId(query.orderPaymentId) },
         { is_paid: true },
         { new: true, session },
-      ).select('books');
+      ).select('items');
 
       // Updating books available_stock
       if (orderedBooks) {
@@ -287,8 +295,10 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
       });
       await session.commitTransaction();
       session.endSession;
+
       res.redirect('https://www.youtube.com/watch?v=1xyPf6Rm2Nw');
     } catch (error) {
+      console.log(error)
       await session.abortTransaction();
       session.endSession();
 
