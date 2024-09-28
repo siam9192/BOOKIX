@@ -7,6 +7,7 @@ export default {
   NODE_ENV: process.env.NODE_ENV,
   port: process.env.PORT,
   origin: process.env.ORIGIN,
+  backend_base_api: process.env.BACKEND_BASE_API,
   database_url: process.env.DATABASE_URL,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
   default_password: process.env.DEFAULT_PASS,
@@ -27,5 +28,9 @@ export default {
   paypal_secret: process.env.PAYPAL_SECRET,
   payment_success_url: process.env.PAYMENT_SUCCESS_URL,
   payment_cancel_url: process.env.PAYMENT_CANCEL_URL,
+
+ order_success_url: process.env.ORDER_SUCCESS_URL,
+ order_cancel_url: process.env.ORDER_CANCEL_URL,
+
   payment_success_redirect_url: process.env.PAYMENT_SUCCESS_REDIRECT_URL,
 };

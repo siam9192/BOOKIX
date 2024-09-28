@@ -13,6 +13,7 @@ import { Response } from 'express';
 import Coupon from '../coupon/coupon.model';
 import { TCouponDiscountType } from '../coupon/coupon.interface';
 import { NotificationService } from '../notification/notification.service';
+import config from '../../config';
 const createOrderIntoDB = async (
   res: Response,
   userId: string,
@@ -238,7 +239,7 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
   res: Response,
   query: { PayerID: string; paymentId: string; orderPaymentId: string },
 ) => {
-  console.log(query)
+
   const manageOrder = async (saleId: string) => {
     const payment = await Payment.findById(query.orderPaymentId);
 
@@ -296,14 +297,13 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
       await session.commitTransaction();
       session.endSession;
 
-      res.redirect('https://www.youtube.com/watch?v=1xyPf6Rm2Nw');
+      res.redirect(config.order_success_url as string);
     } catch (error) {
-      console.log(error)
       await session.abortTransaction();
       session.endSession();
 
       // Found an error and refund the payed amount  to payer
-      Paypal.refund(saleId, payment.amount.subtotal);
+      Paypal.refund(saleId, payment.amount.subtotal,config.order_cancel_url,res);
     }
   };
 
@@ -416,7 +416,7 @@ const updateOrderStatus = async (
   } else if (orderStatus === TOrderStatus.CANCELLED) {
     throw new AppError(
       httpStatus.NOT_ACCEPTABLE,
-      'Order status can not be change',
+      'Order status can not be change', 
     );
   }
 

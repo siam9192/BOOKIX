@@ -1,8 +1,7 @@
 import paypal from 'paypal-rest-sdk';
 import config from '../config';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import AppError from '../Errors/AppError';
-import httpStatus from 'http-status';
 
 paypal.configure({
   mode: 'sandbox',
@@ -17,8 +16,8 @@ export const pay = async (res: Response, amount: number, paymentId: string) => {
       payment_method: 'paypal',
     },
     redirect_urls: {
-      return_url: `http://localhost:5000/api/v1/orders/payment/paypal/success?orderPaymentId=${paymentId}`,
-      cancel_url: `http://localhost:5000/api/v1/orders/payment/cancel?paymentId=${paymentId}`,
+      return_url: `${config.backend_base_api}/orders/payment/paypal/success?orderPaymentId=${paymentId}`,
+      cancel_url: `${config.backend_base_api}/orders/payment/cancel?paymentId=${paymentId}`,
     },
     transactions: [
       {
@@ -77,7 +76,7 @@ const executePayment = async (
   );
 };
 
-const refund = (saleId: string, amount: number) => {
+const refund = (saleId: string, amount: number,redirect_url?:string,res?:Response) => {
   const data = {
     amount: {
       total: amount.toFixed(2),
@@ -90,11 +89,16 @@ const refund = (saleId: string, amount: number) => {
         // throw new Error()
         throw new AppError(400,"Something went wrong")
       } else {
-        console.log('Refund success full');
+        if(res && redirect_url){
+          res.redirect(redirect_url)
+          }
       }
     });
   } catch (error) {
-    throw new AppError(400,"Something went wrong")
+    if(res && redirect_url){
+      res.redirect(redirect_url)
+    }
+      // throw new AppError(400,"Something went wrong")
   }
 };
 
