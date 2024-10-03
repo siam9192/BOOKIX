@@ -46,6 +46,8 @@ export enum TOrderStatus {
   RETURNED = 'Returned', // The order has been returned by the recipient
   CANCELLED = 'Cancelled', // The order has been cancelled and will not be delivered
 }
+
+export type TOrderStatusUnion =(typeof TOrderStatus)[keyof typeof TOrderStatus]
 export type TOrderBook = {
   book: Types.ObjectId;
   unit_price: number;

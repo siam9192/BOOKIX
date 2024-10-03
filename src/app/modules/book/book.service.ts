@@ -181,12 +181,14 @@ const unpauseBookIntoDB = async (bookId: string) => {
   return result;
 };
 
-const getBooksBasedOnDiscountFromDB = async (discount: string) => {
+const getBooksBasedOnDiscountFromDB = async (discount: string,query:any) => {
   const discountNumber = Number(discount);
 
   if (!discountNumber) {
     throw new AppError(httpStatus.NOT_ACCEPTABLE, 'Something went wrong');
   }
+  const limit = query.limit||6
+  
   const result = await Book.aggregate([
     {
       $match: {
@@ -216,6 +218,9 @@ const getBooksBasedOnDiscountFromDB = async (discount: string) => {
       $match: {
         discount_percentage: { $lte: discountNumber },
       },
+    },
+    {
+      $limit:Number(limit)
     },
     {
       $project: {

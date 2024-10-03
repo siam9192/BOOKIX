@@ -112,7 +112,7 @@ const unpauseBook = catchAsync(async (req: Request, res: Response) => {
 const getBooksBasedOnDiscount = catchAsync(
   async (req: Request, res: Response) => {
     const discount = req.params.percentage;
-    const result = await BookService.getBooksBasedOnDiscountFromDB(discount);
+    const result = await BookService.getBooksBasedOnDiscountFromDB(discount,req.query);
     sendSuccessResponse(res, {
       statusCode: httpStatus.OK,
       message: 'Books retrieved  successfully based on discount',

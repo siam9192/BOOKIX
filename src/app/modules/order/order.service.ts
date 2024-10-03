@@ -6,14 +6,15 @@ import { TPaymentMethodUnion } from '../payment/payment.interface';
 import { Order } from './order.model';
 import { Payment } from '../payment/payment.model';
 import crypto from 'crypto';
-import { startSession } from 'mongoose';
-import { TDeliveryDetails, TOrder, TOrderStatus } from './order.interface';
+import { Aggregate, AggregateOptions, PipelineStage, startSession } from 'mongoose';
+import { TDeliveryDetails, TOrder, TOrderStatus, TOrderStatusUnion } from './order.interface';
 import { Paypal } from '../../paymentMethods/paypal';
 import { Response } from 'express';
 import Coupon from '../coupon/coupon.model';
 import { TCouponDiscountType } from '../coupon/coupon.interface';
 import { NotificationService } from '../notification/notification.service';
 import config from '../../config';
+import { TRole, TRoleUnion } from '../user/user.interface';
 const createOrderIntoDB = async (
   res: Response,
   userId: string,
@@ -321,24 +322,16 @@ const getOrdersFromDB = async (query: any) => {
   const result = await Order.aggregate([
     {
       $lookup: {
-        from: 'items',
-        localField: 'items.book',
-        foreignField: '_id',
-        as: 'payment',
-      },
-    },
-    {
-      $lookup: {
         from: 'payments',
         localField: 'payment',
         foreignField: '_id',
-        as: 'payment',
+        as: 'payments',
       },
     },
     {
       $addFields: {
         payment: {
-          $arrayElemAt: ['$payment', 0],
+          $arrayElemAt: ['$payments', 0],
         },
       },
     },
@@ -359,6 +352,45 @@ const getOrdersFromDB = async (query: any) => {
 
   return result;
 };
+
+const getCurrentUserOrdersFromDB = async (userId:string,query:{status:string})=>{
+  
+  const stages:PipelineStage[] =[
+    {
+      $lookup: {
+        from: 'payments',
+        localField: 'payment',
+        foreignField: '_id',
+        as: 'payments',
+      },
+    },
+    {
+      $addFields: {
+        payment: {
+          $arrayElemAt: ['$payments', 0],
+        },
+      },
+    },
+    {
+      $match: {
+        'payment.success': true,
+         status:{$in:query.status ? [query.status]:Object.values(TOrderStatus)}
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    }
+  ]
+  
+
+  const result = (await Order.aggregate(stages)).map(item=>{
+    delete item.payments
+    return item
+  });
+  return result
+}
 
 const updateOrderStatus = async (
   payload: Pick<TOrder, 'status'> & { orderId: string },
@@ -428,6 +460,38 @@ const updateOrderStatus = async (
   return result;
 };
 
+const cancelOrderIntoDB = async (userId:string,userRole:TRoleUnion,orderId:string)=>{
+  
+  const order = await Order.findById(orderId)
+    // Checking order existence
+    if(!order){
+      throw new AppError (httpStatus.NOT_FOUND,'Order not found')
+    }
+  //  only admin or moderator and owner of this order can cancel it 
+  if(userRole === TRole.CUSTOMER){
+    // One Customer can not cancel another customer order 
+    if(order.customer.toString() !== userId){
+      throw new AppError (httpStatus.NOT_FOUND,'Order can not be canceled')
+    }
+  } 
+  
+  // Only pending order can canceled 
+  if(order.status !== TOrderStatus.PENDING){
+   throw new AppError(httpStatus.NOT_ACCEPTABLE,'Order Can not be canceled now ')
+  }
+ 
+  // Updating order status Pending to Canceled
+  const updateStatus = await Order.updateOne({_id:objectId(orderId)},{status:TOrderStatus.CANCELLED})
+
+  
+  // Checking is the order updated successfully
+  if(!updateStatus.modifiedCount){
+    throw new AppError (httpStatus.NOT_FOUND,'Order can not be canceled')
+  }
+ return null
+}
+
+
 const getCustomerYetToReviewOrdersFromDB = async (userId: string) => {
   const result = await Order.aggregate([
     {
@@ -437,11 +501,11 @@ const getCustomerYetToReviewOrdersFromDB = async (userId: string) => {
       },
     },
     {
-      $unwind: '$books',
+      $unwind: '$items',
     },
     {
       $project: {
-        order: '$books',
+        order: '$items',
       },
     },
     {
@@ -457,20 +521,32 @@ const getCustomerYetToReviewOrdersFromDB = async (userId: string) => {
         as: 'order.book',
       },
     },
+    
     {
       $project: {
         'order.book': {
+          _id:1,
           name: 1,
           cover_images: 1,
         },
         'order.quantity': 1,
         'order.unit_price': 1,
+        'delivery_date':1
       },
     },
   ]);
 
-  return result;
+  return result.map(item=>{
+    // Converting book field array ro object
+    item.order.book = item.order.book[0]
+    return item
+  });
 };
+
+const getOrderDetailsFromDB = async (orderId:string)=>{
+  const result  = Order.findById(orderId).populate('payment')
+  return result
+}
 
 export const OrderService = {
   createOrderIntoDB,
@@ -480,4 +556,7 @@ export const OrderService = {
   updateOrderStatus,
   managePaymentCanceledOrderIntoDB,
   getCustomerYetToReviewOrdersFromDB,
+  getCurrentUserOrdersFromDB,
+  getOrderDetailsFromDB,
+  cancelOrderIntoDB,
 };

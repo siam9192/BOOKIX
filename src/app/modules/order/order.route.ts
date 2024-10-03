@@ -4,6 +4,7 @@ import { TRole } from '../user/user.interface';
 import validateRequest from '../../middlewares/validateRequest';
 import { OrderValidations } from './order.validation';
 import { OrderController } from './order.controller';
+import { AllRole } from '../../utils/constant';
 
 const router = Router();
 
@@ -22,15 +23,21 @@ router.get(
 router.get('/payment/cancel', OrderController.managePaymentCanceledOrder);
 
 router.get('/', auth(TRole.ADMIN, TRole.MODERATOR), OrderController.getOrders);
+
 router.get(
-  '/customer/yet-to-review',
+  '/current-user/customer/yet-to-review',
   auth(TRole.CUSTOMER),
   OrderController.getCustomerYetToReviewOrders,
 );
+
+router.get('/current-user',auth(TRole.CUSTOMER),OrderController.getCurrentUserOrders)
+router.get('/order-details/:orderId',auth(...Object.values(TRole)),OrderController.getOrderDetails)
 
 router.patch(
   '/update-status',
   auth(TRole.ADMIN, TRole.MODERATOR),
   OrderController.updateOrderStatus,
 );
+
+router.patch('/cancel/:orderId',auth(...AllRole),OrderController.cancelOrder)
 export const OrderRouter = router;

@@ -10,7 +10,8 @@ import { TOrderStatus } from '../order/order.interface';
 import { objectId } from '../../utils/func';
 
 const createReviewIntoDB = async (userId: string, payload: TReview) => {
-  const order = await Order.findById(payload.order).populate('books');
+  console.log(payload)
+  const order = await Order.findById(payload.order).populate('items');
 
   // checking order existence
   if (!order) {
@@ -27,7 +28,7 @@ const createReviewIntoDB = async (userId: string, payload: TReview) => {
     );
   }
 
-  const orderedBooks = order.books.map((item) => item.book.toString());
+  const orderedBooks = order.items.map((item) => item.book.toString());
 
   // Checking is the book purchase on this order
   if (!orderedBooks.includes(payload.book.toString())) {
@@ -37,7 +38,7 @@ const createReviewIntoDB = async (userId: string, payload: TReview) => {
     );
   }
 
-  const isReviewed = order.books.find(
+  const isReviewed = order.items.find(
     (item) => item.book.toString() === payload.book.toString(),
   )?.is_reviewed;
 
@@ -52,28 +53,29 @@ const createReviewIntoDB = async (userId: string, payload: TReview) => {
 
   try {
     const updateResult = await Order.updateOne(
-      { _id: order._id, 'books.book': objectId(payload.book.toString()) },
-      { 'books.$.is_reviewed': true },
+      { _id: order._id, 'items.book': objectId(payload.book.toString()) },
+      { 'items.$.is_reviewed': true },
       { session },
     );
-
+    
     if (!updateResult.modifiedCount) {
       throw new Error();
     }
 
     //  Checking is review created successfully
     const createdReview = await Review.create([payload], { session });
+    
     if (!createdReview) {
       throw new Error();
     }
 
     await session.commitTransaction();
+    await session.endSession();
   } catch (error) {
     await session.abortTransaction();
-    throw new AppError(400, 'Review can not created something went wrong');
-  } finally {
     await session.endSession();
-  }
+    throw new AppError(400, 'Review can not created something went wrong');
+  } 
 };
 
 const deleteReviewFromDB = async (reviewId: string) => {
