@@ -45,7 +45,7 @@ const createOrderValidation = z.object({
   coupon: z.string().optional(),
   payment_method: paymentMethodUnion,
   delivery_details: deliveryDetailsSchema,
-  customer_message:z.string().optional()
+  customer_message: z.string().optional(),
 });
 
 const updateOrderStatusValidation = {

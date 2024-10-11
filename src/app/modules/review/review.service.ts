@@ -10,7 +10,7 @@ import { TOrderStatus } from '../order/order.interface';
 import { objectId } from '../../utils/func';
 
 const createReviewIntoDB = async (userId: string, payload: TReview) => {
-  console.log(payload)
+  console.log(payload);
   const order = await Order.findById(payload.order).populate('items');
 
   // checking order existence
@@ -57,14 +57,14 @@ const createReviewIntoDB = async (userId: string, payload: TReview) => {
       { 'items.$.is_reviewed': true },
       { session },
     );
-    
+
     if (!updateResult.modifiedCount) {
       throw new Error();
     }
 
     //  Checking is review created successfully
     const createdReview = await Review.create([payload], { session });
-    
+
     if (!createdReview) {
       throw new Error();
     }
@@ -75,7 +75,7 @@ const createReviewIntoDB = async (userId: string, payload: TReview) => {
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(400, 'Review can not created something went wrong');
-  } 
+  }
 };
 
 const deleteReviewFromDB = async (reviewId: string) => {

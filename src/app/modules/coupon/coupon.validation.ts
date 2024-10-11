@@ -22,14 +22,17 @@ const createCouponValidation = z.object({
 const updateCouponValidation = createCouponValidation.partial();
 
 const applyCouponValidation = z.object({
-   code:z.string(),
-   items:z.array(z.object({ 
-    book:z.string(),
-    quantity:z.number().min(1)}))
-})
+  code: z.string(),
+  items: z.array(
+    z.object({
+      book: z.string(),
+      quantity: z.number().min(1),
+    }),
+  ),
+});
 
 export const CouponValidations = {
   createCouponValidation,
   updateCouponValidation,
-  applyCouponValidation
+  applyCouponValidation,
 };

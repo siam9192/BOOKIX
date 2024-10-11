@@ -5,15 +5,35 @@ import { Payment } from './payment.model';
 
 const getPaymentsFromDB = async (query: any) => {
   query.success = true;
-  const result = await new QueryBuilder(Payment.find(), query)
+  const data = await new QueryBuilder(Payment.find(), query)
     .find()
     .sort()
     .paginate()
     .get();
   const meta = await new QueryBuilder(Payment.find(), query).find().getMeta();
   return {
-    result,
+    data,
     meta,
+  };
+};
+
+export const getUserPaymentHistoryFromDB = async (
+  userId: string,
+  query: any,
+) => {
+  const data = await new QueryBuilder(Payment.find(), query)
+    .find()
+    .sort()
+    .paginate()
+    .populate('user')
+    .get();
+
+    const meta = await new QueryBuilder(Payment.find(), query)
+    .find()
+    .getMeta();
+  return {
+    data,
+    meta
   };
 };
 
@@ -31,4 +51,5 @@ const refundPayment = async (payload: {
 
 export const PaymentService = {
   getPaymentsFromDB,
+  getUserPaymentHistoryFromDB,
 };

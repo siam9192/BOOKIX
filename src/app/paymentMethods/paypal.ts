@@ -76,7 +76,12 @@ const executePayment = async (
   );
 };
 
-const refund = (saleId: string, amount: number,redirect_url?:string,res?:Response) => {
+const refund = (
+  saleId: string,
+  amount: number,
+  redirect_url?: string,
+  res?: Response,
+) => {
   const data = {
     amount: {
       total: amount.toFixed(2),
@@ -87,18 +92,18 @@ const refund = (saleId: string, amount: number,redirect_url?:string,res?:Respons
     paypal.sale.refund(saleId, data, function (error, refund) {
       if (error) {
         // throw new Error()
-        throw new AppError(400,"Something went wrong")
+        throw new AppError(400, 'Something went wrong');
       } else {
-        if(res && redirect_url){
-          res.redirect(redirect_url)
-          }
+        if (res && redirect_url) {
+          res.redirect(redirect_url);
+        }
       }
     });
   } catch (error) {
-    if(res && redirect_url){
-      res.redirect(redirect_url)
+    if (res && redirect_url) {
+      res.redirect(redirect_url);
     }
-      // throw new AppError(400,"Something went wrong")
+    // throw new AppError(400,"Something went wrong")
   }
 };
 

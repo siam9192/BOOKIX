@@ -3,7 +3,6 @@ import AppError from '../../Errors/AppError';
 import { Category } from './category.model';
 import { objectId } from '../../utils/func';
 
-
 const createCategoryIntoDB = async (payload: ICategory) => {
   const category = await Category.exists({ name: payload.name });
 

@@ -31,7 +31,12 @@ router.get(
   CouponController.getCouponByCode,
 );
 
-router.post('/apply-coupon',auth(TRole.CUSTOMER),validateRequest(CouponValidations.applyCouponValidation),CouponController.applyCoupon)
+router.post(
+  '/apply-coupon',
+  auth(TRole.CUSTOMER),
+  validateRequest(CouponValidations.applyCouponValidation),
+  CouponController.applyCoupon,
+);
 
 router.put(
   '/:couponId',

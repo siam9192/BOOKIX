@@ -36,16 +36,46 @@ const getOrders = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 const getCurrentUserOrders = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const result = await OrderService.getCurrentUserOrdersFromDB(userId,req.query as any);
+  const result = await OrderService.getCurrentUserOrdersFromDB(
+    userId,
+    req.query as any,
+  );
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Orders retrieved successfully',
     data: result,
   });
 });
+
+const getUserOrderHistory = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+  const result = await OrderService.getUserOrderHistoryFromDB(
+    userId,
+    req.query as any,
+  );
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'User Order history retrieved successfully',
+    data: result,
+  });
+});
+
+const getCurrentUserOrderHistory = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const result = await OrderService.getUserOrderHistoryFromDB(
+      userId,
+      req.query as any,
+    );
+    sendSuccessResponse(res, {
+      statusCode: httpStatus.OK,
+      message: 'Order history retrieved successfully',
+      data: result,
+    });
+  },
+);
 
 const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   const result = await OrderService.updateOrderStatus(req.body);
@@ -79,33 +109,30 @@ const getCustomerYetToReviewOrders = catchAsync(
   },
 );
 
-const getOrderDetails = catchAsync(
-  async (req: Request, res: Response) => {
-   const orderId = req.params.orderId
-    const result =
-      await OrderService.getOrderDetailsFromDB(orderId);
-    sendSuccessResponse(res, {
-      statusCode: httpStatus.OK,
-      message: 'Order details retrieved successfully',
-      data: result,
-    });
-  },
-);
+const getOrderDetails = catchAsync(async (req: Request, res: Response) => {
+  const orderId = req.params.orderId;
+  const result = await OrderService.getOrderDetailsFromDB(orderId);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Order details retrieved successfully',
+    data: result,
+  });
+});
 
-
-const cancelOrder = catchAsync(
-  async (req: Request, res: Response) => {
-   const orderId = req.params.orderId
-   const {id:userId,role:userRole} = req.user
-    const result =
-      await OrderService.cancelOrderIntoDB(userId,userRole,orderId);
-    sendSuccessResponse(res, {
-      statusCode: httpStatus.OK,
-      message: 'Order cancelled successfully',
-      data: result,
-    });
-  },
-);
+const cancelOrder = catchAsync(async (req: Request, res: Response) => {
+  const orderId = req.params.orderId;
+  const { id: userId, role: userRole } = req.user;
+  const result = await OrderService.cancelOrderIntoDB(
+    userId,
+    userRole,
+    orderId,
+  );
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Order cancelled successfully',
+    data: result,
+  });
+});
 
 export const OrderController = {
   createOrder,
@@ -117,5 +144,7 @@ export const OrderController = {
   getCustomerYetToReviewOrders,
   getCurrentUserOrders,
   getOrderDetails,
-  cancelOrder
+  cancelOrder,
+  getCurrentUserOrderHistory,
+  getUserOrderHistory,
 };

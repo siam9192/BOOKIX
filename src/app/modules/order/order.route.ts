@@ -20,18 +20,45 @@ router.get(
   '/payment/paypal/success',
   OrderController.managePaypalPaymentSuccessOrders,
 );
+// Payment cancel
 router.get('/payment/cancel', OrderController.managePaymentCanceledOrder);
 
 router.get('/', auth(TRole.ADMIN, TRole.MODERATOR), OrderController.getOrders);
 
+// Get customer not reviewed product after order
 router.get(
   '/current-user/customer/yet-to-review',
   auth(TRole.CUSTOMER),
   OrderController.getCustomerYetToReviewOrders,
 );
 
-router.get('/current-user',auth(TRole.CUSTOMER),OrderController.getCurrentUserOrders)
-router.get('/order-details/:orderId',auth(...Object.values(TRole)),OrderController.getOrderDetails)
+// Get current user orders
+router.get(
+  '/current-user',
+  auth(TRole.CUSTOMER),
+  OrderController.getCurrentUserOrders,
+);
+
+// Get current user order history
+router.get(
+  '/history/current-user',
+  auth(TRole.CUSTOMER),
+  OrderController.getCurrentUserOrderHistory,
+);
+
+// Get current user order history
+router.get(
+  '/history/user/:userId',
+  auth(TRole.ADMIN, TRole.MODERATOR),
+  OrderController.getUserOrderHistory,
+);
+
+// Get order details
+router.get(
+  '/order-details/:orderId',
+  auth(...Object.values(TRole)),
+  OrderController.getOrderDetails,
+);
 
 router.patch(
   '/update-status',
@@ -39,5 +66,5 @@ router.patch(
   OrderController.updateOrderStatus,
 );
 
-router.patch('/cancel/:orderId',auth(...AllRole),OrderController.cancelOrder)
+router.patch('/cancel/:orderId', auth(...AllRole), OrderController.cancelOrder);
 export const OrderRouter = router;

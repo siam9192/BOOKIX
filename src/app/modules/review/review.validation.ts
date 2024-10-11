@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const createReviewValidation = z.object({
-  order:z.string(),
+  order: z.string(),
   book: z.string(),
   images: z.array(z.string()).optional(),
   comment: z.string(),

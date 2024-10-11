@@ -33,7 +33,7 @@ const googleCallback = async ({
 
     const user = await User.findOne({ email: data.email });
 
-    // Checking user existence if user found then generate refresh token and access token otherwise create a user and then  generate refresh token and access token 
+    // Checking user existence if user found then generate refresh token and access token otherwise create a user and then  generate refresh token and access token
     if (user) {
       tokenPayload = {
         id: user._id,

@@ -47,7 +47,8 @@ export enum TOrderStatus {
   CANCELLED = 'Cancelled', // The order has been cancelled and will not be delivered
 }
 
-export type TOrderStatusUnion =(typeof TOrderStatus)[keyof typeof TOrderStatus]
+export type TOrderStatusUnion =
+  (typeof TOrderStatus)[keyof typeof TOrderStatus];
 export type TOrderBook = {
   book: Types.ObjectId;
   unit_price: number;
@@ -59,7 +60,7 @@ export type TOrderBook = {
 export type TOrder = {
   items: TOrderBook[];
   delivery_details: TDeliveryDetails;
-  customer_message:string,
+  customer_message: string;
   payment: Types.ObjectId;
   status: (typeof TOrderStatus)[keyof typeof TOrderStatus];
   cancel_details: {
@@ -68,5 +69,4 @@ export type TOrder = {
   };
   is_returned: boolean;
   customer: Types.ObjectId;
-
 };

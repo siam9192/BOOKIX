@@ -10,7 +10,7 @@ import { User } from '../modules/user/user.model';
 function auth(...requiredRoles: TRoleUnion[]) {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    
+
     // checking if the token is missing
     if (!token) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');

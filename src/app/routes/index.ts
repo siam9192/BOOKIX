@@ -11,6 +11,7 @@ import { NotificationRouter } from '../modules/notification/notification.route';
 import { ReviewRouter } from '../modules/review/review.route';
 import { PaymentRouter } from '../modules/payment/payment.route';
 import { CategoryRouter } from '../modules/category/category.route';
+import { OverviewRouter } from '../modules/overview/overview.route';
 
 const router = Router();
 
@@ -65,6 +66,10 @@ const moduleRoutes: TModuleRoutes = [
     path: '/payments',
     router: PaymentRouter,
   },
+  {
+    path:'/overview',
+    router:OverviewRouter
+  }
 ];
 const routes = moduleRoutes.map((route) =>
   router.use(route.path, route.router),

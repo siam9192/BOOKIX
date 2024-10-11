@@ -6,8 +6,18 @@ import { TPaymentMethodUnion } from '../payment/payment.interface';
 import { Order } from './order.model';
 import { Payment } from '../payment/payment.model';
 import crypto from 'crypto';
-import { Aggregate, AggregateOptions, PipelineStage, startSession } from 'mongoose';
-import { TDeliveryDetails, TOrder, TOrderStatus, TOrderStatusUnion } from './order.interface';
+import {
+  Aggregate,
+  AggregateOptions,
+  PipelineStage,
+  startSession,
+} from 'mongoose';
+import {
+  TDeliveryDetails,
+  TOrder,
+  TOrderStatus,
+  TOrderStatusUnion,
+} from './order.interface';
 import { Paypal } from '../../paymentMethods/paypal';
 import { Response } from 'express';
 import Coupon from '../coupon/coupon.model';
@@ -15,13 +25,14 @@ import { TCouponDiscountType } from '../coupon/coupon.interface';
 import { NotificationService } from '../notification/notification.service';
 import config from '../../config';
 import { TRole, TRoleUnion } from '../user/user.interface';
+import QueryBuilder from '../../middlewares/QueryBuilder';
 const createOrderIntoDB = async (
   res: Response,
   userId: string,
   payload: {
     items: { bookId: string; quantity: number }[];
     delivery_details: TDeliveryDetails;
-    customer_message:string;
+    customer_message: string;
     coupon?: string;
     payment_method: TPaymentMethodUnion;
   },
@@ -91,7 +102,7 @@ const createOrderIntoDB = async (
   };
 
   if (payload.coupon) {
-    const coupon = await Coupon.findOne({coupon_code:payload.coupon});
+    const coupon = await Coupon.findOne({ coupon_code: payload.coupon });
     const currentDate = new Date();
     // Checking coupon existence
     if (!coupon) {
@@ -161,7 +172,7 @@ const createOrderIntoDB = async (
       throw new Error();
     }
 
-    const orderData:any = {
+    const orderData: any = {
       items: purchasedBooks.map((book) => ({
         book: book.book,
         quantity: book.quantity,
@@ -172,8 +183,8 @@ const createOrderIntoDB = async (
       customer: userId,
     };
 
-    if(payload.customer_message){
-      orderData.customer_message =payload.customer_message
+    if (payload.customer_message) {
+      orderData.customer_message = payload.customer_message;
     }
 
     // Creating order into db
@@ -189,7 +200,7 @@ const createOrderIntoDB = async (
 
     await Paypal.pay(res, amount.total, payment[0]._id.toString());
   } catch (error) {
-    console.log(error)
+    console.log(error);
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(400, 'Something went wrong');
@@ -240,7 +251,6 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
   res: Response,
   query: { PayerID: string; paymentId: string; orderPaymentId: string },
 ) => {
-
   const manageOrder = async (saleId: string) => {
     const payment = await Payment.findById(query.orderPaymentId);
 
@@ -263,7 +273,6 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
       if (!updatePayment.modifiedCount) {
         throw new Error();
       }
-   
 
       // Updating order paid status
       const orderedBooks = await Order.findOneAndUpdate(
@@ -304,7 +313,12 @@ const managePaypalPaymentSuccessOrdersIntoDB = async (
       session.endSession();
 
       // Found an error and refund the payed amount  to payer
-      Paypal.refund(saleId, payment.amount.subtotal,config.order_cancel_url,res);
+      Paypal.refund(
+        saleId,
+        payment.amount.subtotal,
+        config.order_cancel_url,
+        res,
+      );
     }
   };
 
@@ -353,9 +367,11 @@ const getOrdersFromDB = async (query: any) => {
   return result;
 };
 
-const getCurrentUserOrdersFromDB = async (userId:string,query:{status:string})=>{
-  
-  const stages:PipelineStage[] =[
+const getCurrentUserOrdersFromDB = async (
+  userId: string,
+  query: { status: string },
+) => {
+  const stages: PipelineStage[] = [
     {
       $lookup: {
         from: 'payments',
@@ -374,23 +390,31 @@ const getCurrentUserOrdersFromDB = async (userId:string,query:{status:string})=>
     {
       $match: {
         'payment.success': true,
-         status:{$in:query.status ? [query.status]:Object.values(TOrderStatus)}
+        status: {
+          $in: query.status
+            ? [query.status]
+            : [
+                TOrderStatus.PENDING,
+                TOrderStatus.PROCESSING,
+                TOrderStatus.IN_TRANSIT,
+                TOrderStatus.OUT_FOR_DELIVERY,
+              ],
+        },
       },
     },
     {
       $sort: {
         createdAt: -1,
       },
-    }
-  ]
-  
+    },
+  ];
 
-  const result = (await Order.aggregate(stages)).map(item=>{
-    delete item.payments
-    return item
+  const result = (await Order.aggregate(stages)).map((item) => {
+    delete item.payments;
+    return item;
   });
-  return result
-}
+  return result;
+};
 
 const updateOrderStatus = async (
   payload: Pick<TOrder, 'status'> & { orderId: string },
@@ -448,7 +472,7 @@ const updateOrderStatus = async (
   } else if (orderStatus === TOrderStatus.CANCELLED) {
     throw new AppError(
       httpStatus.NOT_ACCEPTABLE,
-      'Order status can not be change', 
+      'Order status can not be change',
     );
   }
 
@@ -460,37 +484,44 @@ const updateOrderStatus = async (
   return result;
 };
 
-const cancelOrderIntoDB = async (userId:string,userRole:TRoleUnion,orderId:string)=>{
-  
-  const order = await Order.findById(orderId)
-    // Checking order existence
-    if(!order){
-      throw new AppError (httpStatus.NOT_FOUND,'Order not found')
-    }
-  //  only admin or moderator and owner of this order can cancel it 
-  if(userRole === TRole.CUSTOMER){
-    // One Customer can not cancel another customer order 
-    if(order.customer.toString() !== userId){
-      throw new AppError (httpStatus.NOT_FOUND,'Order can not be canceled')
-    }
-  } 
-  
-  // Only pending order can canceled 
-  if(order.status !== TOrderStatus.PENDING){
-   throw new AppError(httpStatus.NOT_ACCEPTABLE,'Order Can not be canceled now ')
+const cancelOrderIntoDB = async (
+  userId: string,
+  userRole: TRoleUnion,
+  orderId: string,
+) => {
+  const order = await Order.findById(orderId);
+  // Checking order existence
+  if (!order) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Order not found');
   }
- 
+  //  only admin or moderator and owner of this order can cancel it
+  if (userRole === TRole.CUSTOMER) {
+    // One Customer can not cancel another customer order
+    if (order.customer.toString() !== userId) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Order can not be canceled');
+    }
+  }
+
+  // Only pending order can canceled
+  if (order.status !== TOrderStatus.PENDING) {
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      'Order Can not be canceled now ',
+    );
+  }
+
   // Updating order status Pending to Canceled
-  const updateStatus = await Order.updateOne({_id:objectId(orderId)},{status:TOrderStatus.CANCELLED})
+  const updateStatus = await Order.updateOne(
+    { _id: objectId(orderId) },
+    { status: TOrderStatus.CANCELLED },
+  );
 
-  
   // Checking is the order updated successfully
-  if(!updateStatus.modifiedCount){
-    throw new AppError (httpStatus.NOT_FOUND,'Order can not be canceled')
+  if (!updateStatus.modifiedCount) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Order can not be canceled');
   }
- return null
-}
-
+  return null;
+};
 
 const getCustomerYetToReviewOrdersFromDB = async (userId: string) => {
   const result = await Order.aggregate([
@@ -521,32 +552,78 @@ const getCustomerYetToReviewOrdersFromDB = async (userId: string) => {
         as: 'order.book',
       },
     },
-    
+
     {
       $project: {
         'order.book': {
-          _id:1,
+          _id: 1,
           name: 1,
           cover_images: 1,
         },
         'order.quantity': 1,
         'order.unit_price': 1,
-        'delivery_date':1
+        delivery_date: 1,
       },
     },
   ]);
 
-  return result.map(item=>{
+  return result.map((item) => {
     // Converting book field array ro object
-    item.order.book = item.order.book[0]
-    return item
+    item.order.book = item.order.book[0];
+    return item;
   });
 };
 
-const getOrderDetailsFromDB = async (orderId:string)=>{
-  const result  = Order.findById(orderId).populate('payment')
-  return result
-}
+const getOrderDetailsFromDB = async (orderId: string) => {
+  const result = Order.findById(orderId).populate('payment');
+  return result;
+};
+
+const getUserOrderHistoryFromDB = async (userId: string, query: any) => {
+  const stages: PipelineStage[] = [
+    {
+      $lookup: {
+        from: 'payments',
+        localField: 'payment',
+        foreignField: '_id',
+        as: 'payments',
+      },
+    },
+    {
+      $addFields: {
+        payment: {
+          $arrayElemAt: ['$payments', 0],
+        },
+      },
+    },
+    {
+      $match: {
+        'payment.success': true,
+        status: {
+          $in: query.status
+            ? [query.status]
+            : [
+                TOrderStatus.DELIVERED,
+                TOrderStatus.CANCELLED,
+                TOrderStatus.RETURNED,
+              ],
+        },
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+  ];
+
+  const result = (await Order.aggregate(stages)).map((item) => {
+    delete item.payments;
+    return item;
+  });
+
+  return result;
+};
 
 export const OrderService = {
   createOrderIntoDB,
@@ -559,4 +636,5 @@ export const OrderService = {
   getCurrentUserOrdersFromDB,
   getOrderDetailsFromDB,
   cancelOrderIntoDB,
+  getUserOrderHistoryFromDB,
 };

@@ -29,8 +29,8 @@ export default {
   payment_success_url: process.env.PAYMENT_SUCCESS_URL,
   payment_cancel_url: process.env.PAYMENT_CANCEL_URL,
 
- order_success_url: process.env.ORDER_SUCCESS_URL,
- order_cancel_url: process.env.ORDER_CANCEL_URL,
+  order_success_url: process.env.ORDER_SUCCESS_URL,
+  order_cancel_url: process.env.ORDER_CANCEL_URL,
 
   payment_success_redirect_url: process.env.PAYMENT_SUCCESS_REDIRECT_URL,
 };

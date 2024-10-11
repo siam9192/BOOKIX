@@ -33,9 +33,9 @@ const getCouponById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const applyCoupon =  catchAsync(async (req: Request, res: Response) => {
+const applyCoupon = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const result = await CouponService.applyCoupon(req.body,userId);
+  const result = await CouponService.applyCoupon(req.body, userId);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Coupon applied successfully',

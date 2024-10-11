@@ -5,7 +5,7 @@ const CategorySchema = new Schema<ICategory>({
     type: String,
     required: true,
   },
-  image:{
+  image: {
     type: String,
     required: true,
   },

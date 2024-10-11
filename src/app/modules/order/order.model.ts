@@ -110,9 +110,9 @@ const orderSchema = new Schema<TOrder>(
       type: deliveryDetailsSchema,
       required: true,
     },
-    customer_message:{
-      type:String,
-      default:null
+    customer_message: {
+      type: String,
+      default: null,
     },
     payment: {
       type: Schema.Types.ObjectId,
@@ -128,8 +128,7 @@ const orderSchema = new Schema<TOrder>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-    }
-   
+    },
   },
   {
     timestamps: true,

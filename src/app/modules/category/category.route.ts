@@ -9,8 +9,8 @@ const router = Router();
 
 router.post(
   '/',
-  auth(TRole.CUSTOMER,TRole.ADMIN,TRole.MODERATOR),
-  validateRequest(z.object({ name: z.string(),image:z.string()})),
+  auth(TRole.CUSTOMER, TRole.ADMIN, TRole.MODERATOR),
+  validateRequest(z.object({ name: z.string(), image: z.string() })),
   CategoryController.createCategory,
 );
 
@@ -18,7 +18,7 @@ router.get('/', CategoryController.getCategories);
 
 router.delete(
   '/:categoryId',
-  auth(TRole.ADMIN,TRole.MODERATOR),
+  auth(TRole.ADMIN, TRole.MODERATOR),
   CategoryController.deleteCategory,
 );
 
