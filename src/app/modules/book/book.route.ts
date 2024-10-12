@@ -13,8 +13,8 @@ router.get('/suggested', BookController.getSuggestBooks);
 router.get('/recently-viewed', BookController.getRecentlyViewedBooks);
 router.get('/discount/:percentage', BookController.getBooksBasedOnDiscount);
 router.get('/related-books/:bookId', BookController.getRelatedBooks);
+router.get('/free-delivery',BookController.getFreeDeliveryBooks)
 router.get('/:bookId', BookController.getBook);
-
 router.post(
   '/',
   auth(TRole.ADMIN, TRole.MODERATOR),

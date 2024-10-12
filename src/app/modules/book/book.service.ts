@@ -6,6 +6,7 @@ import QueryBuilder from '../../middlewares/QueryBuilder';
 import { Types } from 'mongoose';
 import { objectId } from '../../utils/func';
 import { number } from 'zod';
+import { query } from 'express';
 
 const createBookIntoDB = async (payload: TBook) => {
   // Creating book into db
@@ -59,7 +60,6 @@ const getBooksFromDB = async (query: any) => {
   const meta = await new QueryBuilder(Book.find(), query)
     .textSearch()
     .find()
-    .project('name', 'price', 'cover_images', 'rating')
     .getMeta();
 
   if (yetToSort) {
@@ -126,6 +126,18 @@ const getRelatedBooksFromDB = async (bookId: string) => {
   }).limit(6);
   return result;
 };
+
+
+const getFreeDeliveryBooksFromDB = async (query:any)=>{
+  // query.free_delivery = true
+  
+  const data = await new QueryBuilder(Book.find(),query).find().paginate().project('name', 'price', 'cover_images', 'rating').get()
+  const meta = await new QueryBuilder(Book.find(),query).find().paginate().getMeta()
+  return {
+    data,
+    meta
+  }
+}
 
 const deleteBookFromDB = async (bookId: string) => {
   const book = await Book.findById(bookId);
@@ -259,4 +271,5 @@ export const BookService = {
   updateBookIntoDB,
   pauseBookIntoDB,
   unpauseBookIntoDB,
+  getFreeDeliveryBooksFromDB
 };

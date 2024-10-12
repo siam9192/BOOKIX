@@ -135,6 +135,18 @@ const getRelatedBooks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+const getFreeDeliveryBooks = catchAsync(async (req: Request, res: Response) => {
+  const result = await BookService.getFreeDeliveryBooksFromDB(req.query);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Free delivery Books retrieved successfully',
+    data: result.data,
+    meta:result.meta
+  });
+});
+
+
 export const BookController = {
   createBook,
   createMultipleBooks,
@@ -144,6 +156,7 @@ export const BookController = {
   getSuggestBooks,
   getRecentlyViewedBooks,
   getBooksBasedOnDiscount,
+  getFreeDeliveryBooks,
   getRelatedBooks,
   updateBook,
   deleteBook,

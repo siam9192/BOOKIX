@@ -180,7 +180,7 @@ export const sendResetPasswordMail = async (
     //    Adding reset link in template
     template = template.replace(
       'this is reset password link',
-      `http://localhost:5173?token=${token}`,
+      `${config.origin}/forget-password?token=${token}`,
     );
 
     // Sending reset password  mail

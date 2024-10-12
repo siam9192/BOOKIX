@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { TName } from '../app/modules/user/user.interface';
+import { TName } from '../modules/user/user.interface';
 
 export type TRecipient = {
   name: TName;
