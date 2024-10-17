@@ -67,9 +67,9 @@ const moduleRoutes: TModuleRoutes = [
     router: PaymentRouter,
   },
   {
-    path:'/overview',
-    router:OverviewRouter
-  }
+    path: '/overview',
+    router: OverviewRouter,
+  },
 ];
 const routes = moduleRoutes.map((route) =>
   router.use(route.path, route.router),

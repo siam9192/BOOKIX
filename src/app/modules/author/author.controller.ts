@@ -29,7 +29,18 @@ const getAuthors = catchAsync(async (req: Request, res: Response) => {
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Authors retrieved successfully',
-    data: result,
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getPopularAuthors = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthorService.getPopularAuthorsFromDB(req.query);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Authors retrieved successfully',
+    data: result.data,
+    meta: result.meta,
   });
 });
 
@@ -59,4 +70,5 @@ export const AuthorController = {
   getAuthors,
   updateAuthor,
   deleteAuthor,
+  getPopularAuthors,
 };

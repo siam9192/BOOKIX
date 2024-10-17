@@ -8,6 +8,7 @@ export type TReview = {
   book: Types.ObjectId;
   order: Types.ObjectId;
   customer: Types.ObjectId;
+  createdAt:Date
 };
 
 export interface TReviewMethods extends Model<TReview> {

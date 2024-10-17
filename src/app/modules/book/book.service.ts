@@ -45,6 +45,27 @@ const getBooksFromDB = async (query: any) => {
         break;
     }
   }
+
+  const minPrice = parseInt(query['min-price']);
+  const maxPrice = parseInt(query['max-price']);
+
+  if (minPrice) {
+    query['price.main_price'] = {
+      $gt: minPrice,
+    };
+  }
+  if (maxPrice) {
+    if (query['price.main_price']) {
+      query['price.main_price'].$lt = maxPrice;
+    } else {
+      query['price.main_price'] = {
+        $lt: maxPrice,
+      };
+    }
+  }
+  delete query['min-price'];
+  delete query['max-price'];
+
   // Get books which are not paused and not deleted
   query.is_paused = false;
   query.is_deleted = false;
@@ -57,6 +78,7 @@ const getBooksFromDB = async (query: any) => {
     .paginate()
     .project('name', 'price', 'cover_images', 'rating')
     .get();
+
   const meta = await new QueryBuilder(Book.find(), query)
     .textSearch()
     .find()
@@ -127,17 +149,23 @@ const getRelatedBooksFromDB = async (bookId: string) => {
   return result;
 };
 
-
-const getFreeDeliveryBooksFromDB = async (query:any)=>{
+const getFreeDeliveryBooksFromDB = async (query: any) => {
   // query.free_delivery = true
-  
-  const data = await new QueryBuilder(Book.find(),query).find().paginate().project('name', 'price', 'cover_images', 'rating').get()
-  const meta = await new QueryBuilder(Book.find(),query).find().paginate().getMeta()
+
+  const data = await new QueryBuilder(Book.find(), query)
+    .find()
+    .paginate()
+    .project('name', 'price', 'cover_images', 'rating')
+    .get();
+  const meta = await new QueryBuilder(Book.find(), query)
+    .find()
+    .paginate()
+    .getMeta();
   return {
     data,
-    meta
-  }
-}
+    meta,
+  };
+};
 
 const deleteBookFromDB = async (bookId: string) => {
   const book = await Book.findById(bookId);
@@ -248,15 +276,6 @@ const getBooksBasedOnDiscountFromDB = async (discount: string, query: any) => {
   return result;
 };
 
-const getAuthorBooksFromDB = async (authorId: string) => {
-  return await Book.find({ author_bio: objectId(authorId) }).select([
-    'name',
-    'price',
-    'cover_images',
-    'rating',
-  ]);
-};
-
 export const BookService = {
   createBookIntoDB,
   createMultipleBooksIntoDB,
@@ -271,5 +290,5 @@ export const BookService = {
   updateBookIntoDB,
   pauseBookIntoDB,
   unpauseBookIntoDB,
-  getFreeDeliveryBooksFromDB
+  getFreeDeliveryBooksFromDB,
 };

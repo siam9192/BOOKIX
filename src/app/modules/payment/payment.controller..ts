@@ -9,8 +9,8 @@ const getPayments = catchAsync(async (req: Request, res: Response) => {
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Payments retrieved successfully',
-      data: result.data,
-      meta:result.meta
+    data: result.data,
+    meta: result.meta,
   });
 });
 
@@ -25,8 +25,7 @@ const getCurrentUserPaymentHistory = catchAsync(
       statusCode: httpStatus.OK,
       message: 'Payments retrieved successfully',
       data: result.data,
-      meta:result.meta
-    
+      meta: result.meta,
     });
   },
 );
@@ -41,7 +40,7 @@ const getUserPaymentHistory = catchAsync(
       statusCode: httpStatus.OK,
       message: 'Payments retrieved successfully',
       data: result.data,
-      meta:result.meta
+      meta: result.meta,
     });
   },
 );

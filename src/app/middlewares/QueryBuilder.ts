@@ -7,7 +7,7 @@ class QueryBuilder<T> {
   ) {}
 
   private defaultPage = 1;
-  private defaultLimit = 12;
+  private defaultLimit = 10;
 
   search(searchableFields: string[]) {
     const searchTerm = this?.query?.searchTerm;
@@ -71,9 +71,9 @@ class QueryBuilder<T> {
   paginate() {
     const page = Number(this.query.page) || 1;
     const limit = Number(this.query.limit) || 10;
-  
+
     const skip = (page - 1) * limit;
-   
+
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
     return this;
   }

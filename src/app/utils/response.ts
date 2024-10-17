@@ -5,11 +5,11 @@ type TResponseData = {
   statusCode: number;
   message: string;
   data: any;
-  meta?:TMeta
+  meta?: TMeta;
 };
 
 export type TMeta = {
-  page:number
+  page: number;
   limit: number;
   pages: number[];
   total: number;
@@ -24,7 +24,7 @@ export const sendSuccessResponse = (
     statusCode: responseData.statusCode,
     message: responseData.message,
     data: responseData.data,
-    meta:responseData.meta
+    meta: responseData.meta,
   });
 };
 

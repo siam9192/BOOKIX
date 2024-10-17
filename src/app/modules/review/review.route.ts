@@ -14,7 +14,7 @@ router.post(
   ReviewController.createReview,
 );
 
-router.get('/:bookId', ReviewController.getBookReviews);
+router.get('/book/:bookId', ReviewController.getBookReviews);
 
 router.delete(
   '/:reviewId',

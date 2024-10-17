@@ -10,7 +10,6 @@ import { TOrderStatus } from '../order/order.interface';
 import { objectId } from '../../utils/func';
 
 const createReviewIntoDB = async (userId: string, payload: TReview) => {
-  console.log(payload);
   const order = await Order.findById(payload.order).populate('items');
 
   // checking order existence
@@ -88,7 +87,7 @@ const deleteReviewFromDB = async (reviewId: string) => {
 
 const getBookReviewsFromDB = async (bookId: string, query: any) => {
   query.book = objectId(bookId);
-  const result = await new QueryBuilder(Review.find(), query)
+  let data: any = await new QueryBuilder(Review.find(), query)
     .find()
     .paginate()
     .populate('customer')
@@ -98,8 +97,29 @@ const getBookReviewsFromDB = async (bookId: string, query: any) => {
     .paginate()
     .populate('customer')
     .getMeta();
+
+  data = data.map((item: any) => {
+    const doc = item._doc;
+    const name = doc.customer.name;
+
+    return {
+      _id: doc._id,
+      images: doc.images,
+      rating: doc.rating,
+      comment: doc.comment,
+      customer: {
+        // Concat customer name
+        full_name:
+          name.first_name +
+          (name.middle_name ? ` ${name.middle_name}` : '') +
+          (name.last_name ? ` ${name.last_name}` : ''),
+      },
+      createdAt: doc.createdAt || new Date(),
+    };
+  });
+
   return {
-    result,
+    data,
     meta,
   };
 };

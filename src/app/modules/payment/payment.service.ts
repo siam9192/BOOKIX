@@ -28,12 +28,10 @@ export const getUserPaymentHistoryFromDB = async (
     .populate('user')
     .get();
 
-    const meta = await new QueryBuilder(Payment.find(), query)
-    .find()
-    .getMeta();
+  const meta = await new QueryBuilder(Payment.find(), query).find().getMeta();
   return {
     data,
-    meta
+    meta,
   };
 };
 

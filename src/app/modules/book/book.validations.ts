@@ -63,7 +63,12 @@ const createBookValidation = z.object({
 
 const updateBookValidation = createBookValidation.partial();
 
+const getRecentlyViewedBooksValidations = z.object({
+  book_ids: z.array(z.string()),
+});
+
 export const BookValidations = {
   createBookValidation,
   updateBookValidation,
+  getRecentlyViewedBooksValidations,
 };

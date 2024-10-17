@@ -10,10 +10,14 @@ const router = Router();
 router.get('/', BookController.getBooks);
 router.get('/featured', BookController.getFeaturedBooks);
 router.get('/suggested', BookController.getSuggestBooks);
-router.get('/recently-viewed', BookController.getRecentlyViewedBooks);
+router.post(
+  '/recently-viewed',
+  validateRequest(BookValidations.getRecentlyViewedBooksValidations),
+  BookController.getRecentlyViewedBooks,
+);
 router.get('/discount/:percentage', BookController.getBooksBasedOnDiscount);
 router.get('/related-books/:bookId', BookController.getRelatedBooks);
-router.get('/free-delivery',BookController.getFreeDeliveryBooks)
+router.get('/free-delivery', BookController.getFreeDeliveryBooks);
 router.get('/:bookId', BookController.getBook);
 router.post(
   '/',

@@ -1,32 +1,58 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+'use strict';
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator['throw'](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
+  };
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.sendResetPasswordMail = exports.sendEmailVerificationMail = void 0;
-const config_1 = __importDefault(require("../config"));
-const nodemailer_1 = __importDefault(require("nodemailer"));
-const AppError_1 = __importDefault(require("../Errors/AppError"));
+const config_1 = __importDefault(require('../config'));
+const nodemailer_1 = __importDefault(require('nodemailer'));
+const AppError_1 = __importDefault(require('../Errors/AppError'));
 const transporter = nodemailer_1.default.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Use `true` for port 465, `false` for all other ports
-    auth: {
-        user: config_1.default.app_user_name,
-        pass: config_1.default.app_pass_key,
-    },
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // Use `true` for port 465, `false` for all other ports
+  auth: {
+    user: config_1.default.app_user_name,
+    pass: config_1.default.app_pass_key,
+  },
 });
 const userVerificationEmailHtml = (otp) => {
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="en">
 
@@ -145,41 +171,50 @@ const userVerificationEmailHtml = (otp) => {
 
 `;
 };
-const sendEmailVerificationMail = (emailAddress, otp) => __awaiter(void 0, void 0, void 0, function* () {
+const sendEmailVerificationMail = (emailAddress, otp) =>
+  __awaiter(void 0, void 0, void 0, function* () {
     yield transporter.sendMail({
-        from: 'camperShop.email.@gmail.com',
-        to: emailAddress,
-        subject: 'Verify your Bookix account',
-        html: userVerificationEmailHtml(otp),
+      from: 'camperShop.email.@gmail.com',
+      to: emailAddress,
+      subject: 'Verify your Bookix account',
+      html: userVerificationEmailHtml(otp),
     });
-});
+  });
 exports.sendEmailVerificationMail = sendEmailVerificationMail;
-const sendMail = (emailAddress, subject, html) => __awaiter(void 0, void 0, void 0, function* () {
+const sendMail = (emailAddress, subject, html) =>
+  __awaiter(void 0, void 0, void 0, function* () {
     yield transporter.sendMail({
-        from: 'camperShop.email.@gmail.com',
-        to: emailAddress,
-        subject: subject,
-        html: html,
+      from: 'camperShop.email.@gmail.com',
+      to: emailAddress,
+      subject: subject,
+      html: html,
     });
-});
-const sendResetPasswordMail = (emailAddress, token) => __awaiter(void 0, void 0, void 0, function* () {
+  });
+const sendResetPasswordMail = (emailAddress, token) =>
+  __awaiter(void 0, void 0, void 0, function* () {
     const path = require('path');
     const fs = require('fs');
     // Path name of html template file
-    const pathName = path.join(process.cwd(), 'template-forget-email', 'index.html');
+    const pathName = path.join(
+      process.cwd(),
+      'template-forget-email',
+      'index.html',
+    );
     try {
-        const data = yield fs.promises.readFile(pathName, 'utf8');
-        if (!data) {
-            throw new AppError_1.default(400, 'Something went wrong');
-        }
-        let template = data;
-        //    Adding reset link in template
-        template = template.replace('this is reset password link', `http://localhost:5173?token=${token}`);
-        // Sending reset password  mail
-        yield sendMail(emailAddress, 'Reset your password', template);
-    }
-    catch (error) {
+      const data = yield fs.promises.readFile(pathName, 'utf8');
+      if (!data) {
         throw new AppError_1.default(400, 'Something went wrong');
+      }
+      let template = data;
+      //    Adding reset link in template
+      template = template.replace(
+        'this is reset password link',
+        `${config_1.default.origin}/forget-password?token=${token}`,
+      );
+      // Sending reset password  mail
+      yield sendMail(emailAddress, 'Reset your password', template);
+    } catch (error) {
+      throw new AppError_1.default(400, 'Something went wrong');
     }
-});
+  });
 exports.sendResetPasswordMail = sendResetPasswordMail;

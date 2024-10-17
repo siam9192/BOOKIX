@@ -27,7 +27,7 @@ const getBooks = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     message: 'Books retrieved successfully',
     data: result.result,
-    meta:result.meta
+    meta: result.meta,
   });
 });
 
@@ -60,7 +60,7 @@ const getSuggestBooks = catchAsync(async (req: Request, res: Response) => {
 
 const getRecentlyViewedBooks = catchAsync(
   async (req: Request, res: Response) => {
-    const bookIds = req.body.bookIds;
+    const bookIds = req.body.book_ids;
     const result = await BookService.getRecentlyViewedBooks(bookIds);
     sendSuccessResponse(res, {
       statusCode: httpStatus.OK,
@@ -135,17 +135,15 @@ const getRelatedBooks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 const getFreeDeliveryBooks = catchAsync(async (req: Request, res: Response) => {
   const result = await BookService.getFreeDeliveryBooksFromDB(req.query);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Free delivery Books retrieved successfully',
     data: result.data,
-    meta:result.meta
+    meta: result.meta,
   });
 });
-
 
 export const BookController = {
   createBook,

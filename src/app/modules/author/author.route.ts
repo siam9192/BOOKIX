@@ -15,6 +15,7 @@ router.post(
 );
 
 router.get('/', AuthorController.getAuthors);
+router.get('/popular', AuthorController.getPopularAuthors);
 router.get('/:authorId', AuthorController.getAuthor);
 
 router.patch(

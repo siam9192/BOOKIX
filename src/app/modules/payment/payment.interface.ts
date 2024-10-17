@@ -21,4 +21,6 @@ export type TPayment = {
   success: boolean;
   order: Types.ObjectId;
   user: Types.ObjectId;
+  createdAt:Date,
+  updatedAt:Date
 };

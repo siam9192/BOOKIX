@@ -26,3 +26,16 @@ export const verifyToken = (token: string, secret: string) => {
 };
 
 export const objectId = (id: string) => new Types.ObjectId(id);
+
+export function getDaysInMonth(year: number, month: number) {
+  // Month is zero-indexed (0 = January, 1 = February, ..., 11 = December)
+  const days = [];
+  const date = new Date(year, month, 1);
+
+  while (date.getMonth() === month) {
+    days.push(new Date(date)); // Add the current day
+    date.setDate(date.getDate() + 1); // Move to the next day
+  }
+
+  return days;
+}

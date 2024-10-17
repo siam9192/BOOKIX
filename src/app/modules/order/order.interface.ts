@@ -69,4 +69,6 @@ export type TOrder = {
   };
   is_returned: boolean;
   customer: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 };

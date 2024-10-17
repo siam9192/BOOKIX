@@ -6,9 +6,15 @@ import { PaymentController } from './payment.controller.';
 const router = Router();
 
 router.get('/', auth(TRole.ADMIN), PaymentController.getPayments);
-router.get('/current-user',auth(TRole.CUSTOMER),PaymentController.getCurrentUserPaymentHistory)
-router.get('/user/:userId',auth(TRole.ADMIN,TRole.MODERATOR),PaymentController.getUserPaymentHistory)
-
-
+router.get(
+  '/current-user',
+  auth(TRole.CUSTOMER),
+  PaymentController.getCurrentUserPaymentHistory,
+);
+router.get(
+  '/user/:userId',
+  auth(TRole.ADMIN, TRole.MODERATOR),
+  PaymentController.getUserPaymentHistory,
+);
 
 export const PaymentRouter = router;

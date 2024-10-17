@@ -22,7 +22,7 @@ const getUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.id
+  const userId = req.user.id;
   const result = await UserService.getUser(userId);
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
@@ -30,7 +30,6 @@ const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 
 const changeUserBlockStatusIntoDB = catchAsync(
   async (req: Request, res: Response) => {
@@ -57,5 +56,5 @@ export const UserController = {
   getUser,
   changeUserBlockStatusIntoDB,
   changeUserRole,
-  getCurrentUser
+  getCurrentUser,
 };

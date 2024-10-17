@@ -30,7 +30,8 @@ const getBookReviews = catchAsync(async (req: Request, res: Response) => {
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Review retrieved successfully',
-    data: result,
+    data: result.data,
+    meta: result.meta,
   });
 });
 

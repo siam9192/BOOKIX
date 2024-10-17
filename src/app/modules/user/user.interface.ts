@@ -67,4 +67,5 @@ export type TUser = {
   is_deleted?: boolean;
   registered_by: (typeof TRegistrationOption)[keyof typeof TRegistrationOption];
   notifications: TNotification[];
+  createdAt:Date
 };
