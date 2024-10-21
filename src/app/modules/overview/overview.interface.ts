@@ -5,6 +5,6 @@ export type TAdminOverviewAnalysisQuery = {
 };
 
 export type TMilestoneQuery = {
-  type:'month'|'day'|'year',
-  milestone:number
-}
+  type: 'month' | 'day' | 'year';
+  milestone: number;
+};

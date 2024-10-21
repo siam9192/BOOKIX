@@ -18,7 +18,12 @@ router.post(
 router.get('/discount/:percentage', BookController.getBooksBasedOnDiscount);
 router.get('/related-books/:bookId', BookController.getRelatedBooks);
 router.get('/free-delivery', BookController.getFreeDeliveryBooks);
-router.get('/:bookId', BookController.getBook);
+
+//-------(Warning)   Maintain the position--------//
+router.get('/dashboard', BookController.getBooksForDashboard); //1//
+router.get('/:bookId', BookController.getBook); //2//
+//--------//
+
 router.post(
   '/',
   auth(TRole.ADMIN, TRole.MODERATOR),
@@ -42,12 +47,14 @@ router.post(
 );
 
 router.put(
-  '/',
-  auth(TRole.ADMIN, TRole.MODERATOR),
+  '/:bookId',
+  // auth(TRole.ADMIN, TRole.MODERATOR),
   validateRequest(BookValidations.updateBookValidation),
   BookController.updateBook,
 );
 
+//-------(Warning)   Maintain the position------------------------------------------//
+router.post('/delete-multiple',validateRequest(BookValidations.deleteMultipleBooksValidation),BookController.deleteMultipleBooksFromDB);
 router.delete('/:bookId', BookController.deleteBook);
-
+//-----------------------------------------------------------------------------------//
 export const BookRouter = router;

@@ -3,14 +3,12 @@ import AppError from '../../Errors/AppError';
 import { TBook } from './book.interface';
 import { Book } from './book.model';
 import QueryBuilder from '../../middlewares/QueryBuilder';
-import { Types } from 'mongoose';
+import { startSession, Types } from 'mongoose';
 import { objectId } from '../../utils/func';
-import { number } from 'zod';
-import { query } from 'express';
 
 const createBookIntoDB = async (payload: TBook) => {
   // Creating book into db
-  return await Book.create(payload);
+  return await Book.insertMany(payload);
 };
 
 const createMultipleBooksIntoDB = async (payload: TBook[]) => {
@@ -115,6 +113,138 @@ const getBookFromDB = async (bookId: string) => {
   return await Book.findById(bookId).populate('author_bio');
 };
 
+const getBooksForDashboardFromDB = async (query: any) => {
+  const filter = query.filter;
+  const sort = query.sortBy;
+  const perPage = query.perPage;
+
+  // Delete unnecessary properties from query other wise can not get data correctly
+  delete query.sortBy;
+  delete query.perPage;
+  delete query.sort;
+
+  let yetToSort;
+
+  // If filter exists in query then find data based on filter value
+  if (filter) {
+    switch (filter) {
+      case 'in-stock':
+        query.stock = {
+          $gt: 0,
+        };
+        break;
+      case 'stock-out':
+        query.stock = {
+          $eq: 0,
+        };
+      case 'paused':
+        query.paused = true;
+      case 'active':
+        query.paused = false;
+      case 'stock-out':
+        query.stock = {
+          $eq: 0,
+        };
+
+        query.stock = {
+          $eq: 0,
+        };
+
+      default:
+        break;
+    }
+
+    // Delete the filter property from query object other wise  can not get data correctly
+    delete query.filter;
+  }
+
+  // If sort property exists with the value then append the sort value in query object
+  if (sort) {
+    switch (sort) {
+      case 'price(asc)':
+        yetToSort = sort;
+        break;
+      case 'price(des)':
+        yetToSort = sort;
+        break;
+      case 'sell(asc)':
+        query.sort = 'sold';
+        break;
+      case 'sell(des)':
+        query.sort = '-sold';
+        break;
+      case 'sell(asc)':
+        query.sort = 'rating';
+        break;
+      case 'rating(des)':
+        query.sort = '-rating';
+        break;
+      default:
+    }
+  }
+
+  // If perPage property exists and it's value not string then append perPage as a limit in query object
+  if (perPage && Number(perPage)) {
+    query.limit = perPage;
+  }
+ 
+  // Get only not deleted books
+  query.is_deleted = false
+  
+ 
+  // Get the books
+  let result: any = await new QueryBuilder(Book.find(), query)
+    .textSearch()
+    .find()
+    .sort()
+    .paginate()
+    .project(
+      'name',
+      'price',
+      'cover_images',
+      'rating',
+      'is_paused',
+      'sold',
+      'available_stock',
+    )
+    .get();
+
+  const meta = await new QueryBuilder(Book.find(), query)
+    .textSearch()
+    .find()
+    .getMeta();
+
+  if (yetToSort) {
+    const modifiedResult: any[] = result
+      .map((item: any) => {
+        const modifiedItem = { ...item._doc };
+        if (item.price.enable_discount_price) {
+          modifiedItem.currentPrice = item.price.discount_price;
+        } else {
+          modifiedItem.currentPrice = item.price.main_price;
+        }
+
+        return modifiedItem;
+      })
+      .sort((a: any, b: any) => {
+        // Sort price in ascending
+        if (yetToSort === 'price(asc)') {
+          return a.currentPrice - b.currentPrice;
+        }
+        // Sort price in descending
+        else {
+          return b.currentPrice - a.currentPrice;
+        }
+      });
+    result = modifiedResult;
+  }
+  
+  return {
+    result,
+    meta,
+  };
+};
+
 const getFeaturedBooksFromDB = async () => {
   // Get books which are not paused and not deleted
   const query = {
@@ -179,6 +309,33 @@ const deleteBookFromDB = async (bookId: string) => {
   return Book.findByIdAndUpdate(bookId, { is_deleted: true }, { new: true });
 };
 
+const deleteMultipleBooksFromDB = async(payload:{booksId:string[]})=>{
+
+  
+  const session = await startSession()
+  await session.startTransaction()
+  
+
+  try {
+    const booksId = payload.booksId.map(id=>objectId(id))
+    const deleteStatus = await Book.updateMany({_id:{$in:booksId}},{is_deleted:true},{session})
+    
+    
+    if((!deleteStatus.modifiedCount)||(deleteStatus.modifiedCount !== booksId.length)){
+        throw new Error('Books can not be deleted')
+    }
+   await session.commitTransaction()
+   await session.endSession()
+  } catch (error:any) {
+   
+    await session.abortTransaction()
+    await session.endSession()
+    throw new AppError(400,error?.message||'Something went wrong')
+  
+  }
+  
+}
+
 const updateBookIntoDB = async (bookId: string, payload: Partial<TBook>) => {
   const book = await Book.findById(bookId);
   // Checking book existence
@@ -188,6 +345,8 @@ const updateBookIntoDB = async (bookId: string, payload: Partial<TBook>) => {
 
   return await Book.findByIdAndUpdate(bookId, payload);
 };
+
+
 
 const pauseBookIntoDB = async (bookId: string) => {
   const book = await Book.findById(bookId);
@@ -276,6 +435,8 @@ const getBooksBasedOnDiscountFromDB = async (discount: string, query: any) => {
   return result;
 };
 
+
+
 export const BookService = {
   createBookIntoDB,
   createMultipleBooksIntoDB,
@@ -287,8 +448,10 @@ export const BookService = {
   getBooksBasedOnDiscountFromDB,
   getRelatedBooksFromDB,
   deleteBookFromDB,
+  deleteMultipleBooksFromDB,
   updateBookIntoDB,
   pauseBookIntoDB,
   unpauseBookIntoDB,
   getFreeDeliveryBooksFromDB,
+  getBooksForDashboardFromDB,
 };

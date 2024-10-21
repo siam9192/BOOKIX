@@ -50,7 +50,7 @@ const BookSchema = new Schema<TBook>(
     author: { type: String, required: true },
     author_bio: { type: Schema.Types.ObjectId, ref: 'Author', default: null },
     category: { type: String, required: true },
-    language: { type: String, required: true },
+    _language: { type: String, required: true },
     print_length: { type: Number, required: true },
     published_date: { type: String, required: true },
     edition: { type: String, required: true },

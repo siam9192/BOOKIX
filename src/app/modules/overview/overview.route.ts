@@ -11,7 +11,7 @@ router.get(
   OverviewController.getCustomerAccountOverView,
 );
 
-router.get('/admin',OverviewController.getAdminOverviewData)
+router.get('/admin', OverviewController.getAdminOverviewData);
 router.get('/admin/analysis', OverviewController.getAdminOverviewAnalysis);
-router.get('/admin/milestones',OverviewController.getAdminOverviewMilestones)
+router.get('/admin/milestones', OverviewController.getAdminOverviewMilestones);
 export const OverviewRouter = router;

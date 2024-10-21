@@ -50,7 +50,6 @@ class QueryBuilder<T> {
     if (this.query.sort) {
       sort = this.query.sort;
     }
-    console.log(sort);
     this.modelQuery = this.modelQuery.sort(sort);
     return this;
   }
@@ -69,8 +68,8 @@ class QueryBuilder<T> {
   }
 
   paginate() {
-    const page = Number(this.query.page) || 1;
-    const limit = Number(this.query.limit) || 10;
+    const page = Number(this.query.page) || this.defaultPage;
+    const limit = Number(this.query.limit) || this.defaultLimit;
 
     const skip = (page - 1) * limit;
 

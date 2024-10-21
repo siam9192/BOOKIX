@@ -41,7 +41,7 @@ export type TBook = {
   author: string; // Name of the author
   author_bio?: Types.ObjectId; // Detailed biography of the author
   category: string; // Genre or category of the book
-  language: string; // Language in which the book is written
+  _language: string; // Language in which the book is written
   print_length: number; // Length of the book in pages
   published_date: string; // Publication date of the book
   edition: string; // Edition of the book

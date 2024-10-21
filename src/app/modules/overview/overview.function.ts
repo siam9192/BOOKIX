@@ -106,6 +106,7 @@ export const getAnalysisOfYear = async (year: number) => {
     });
 
     return {
+      type: 'month',
       year: year,
       month: month,
       order,
@@ -120,7 +121,7 @@ export const getAnalysisOfYear = async (year: number) => {
 export const getAnalysisOfMonth = async (year: number, month: number) => {
   const monthFirstDate = new Date(year, month, 1);
   const monthLastDate = new Date(year, month + 1, 0);
-  const monthDays = getDaysInMonth(year, month).map((date) => date.getDay());
+  const monthDays = getDaysInMonth(year, month).map((date) => date.getDate());
   const orders = await Order.aggregate([
     {
       $match: {
@@ -196,6 +197,8 @@ export const getAnalysisOfMonth = async (year: number, month: number) => {
       },
     },
   ]);
+  
+ 
 
   const result = monthDays.map((day, index) => {
     let revenue = 0;
@@ -221,7 +224,7 @@ export const getAnalysisOfMonth = async (year: number, month: number) => {
     return {
       type: 'month',
       year: year,
-      month: months[index],
+      month: months[month],
       day,
       order,
       revenue,
@@ -351,6 +354,6 @@ export const getAnalysisOfDay = async (
       user,
     };
   });
-
+  
   return result;
 };

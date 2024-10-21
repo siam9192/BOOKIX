@@ -31,6 +31,16 @@ const getBooks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getBooksForDashboard = catchAsync(async (req: Request, res: Response) => {
+  const result = await BookService.getBooksForDashboardFromDB(req.query);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Books retrieved successfully',
+    data: result.result,
+    meta: result.meta,
+  });
+});
+
 const getBook = catchAsync(async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const result = await BookService.getBookFromDB(bookId);
@@ -86,6 +96,15 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
   sendSuccessResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Book deleted successfully',
+    data: result,
+  });
+});
+
+const deleteMultipleBooksFromDB = catchAsync(async (req: Request, res: Response) => {
+  const result = await BookService.deleteMultipleBooksFromDB(req.body);
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Books deleted successfully',
     data: result,
   });
 });
@@ -149,6 +168,7 @@ export const BookController = {
   createBook,
   createMultipleBooks,
   getBooks,
+  getBooksForDashboard,
   getBook,
   getFeaturedBooks,
   getSuggestBooks,
@@ -158,6 +178,7 @@ export const BookController = {
   getRelatedBooks,
   updateBook,
   deleteBook,
+  deleteMultipleBooksFromDB,
   pauseBook,
   unpauseBook,
 };

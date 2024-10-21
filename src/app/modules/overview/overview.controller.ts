@@ -40,21 +40,20 @@ const getAdminOverviewAnalysis = catchAsync(
   },
 );
 
-const getAdminOverviewData =  catchAsync(
-  async (req: Request, res: Response) => {
-    const result = await OverviewService.getAdminOverViewDataFromDB();
-    sendSuccessResponse(res, {
-      statusCode: httpStatus.OK,
-      message: 'Admin Dashboard overview  data retrieved successfully',
-      data: result,
-    });
-  },
-);
+const getAdminOverviewData = catchAsync(async (req: Request, res: Response) => {
+  const result = await OverviewService.getAdminOverViewDataFromDB();
+  sendSuccessResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Admin Dashboard overview  data retrieved successfully',
+    data: result,
+  });
+});
 
-
-const getAdminOverviewMilestones =  catchAsync(
+const getAdminOverviewMilestones = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await OverviewService.getAdminOverviewMilestonesFromDB(req.query as any);
+    const result = await OverviewService.getAdminOverviewMilestonesFromDB(
+      req.query as any,
+    );
     sendSuccessResponse(res, {
       statusCode: httpStatus.OK,
       message: 'Admin Dashboard overview  data retrieved successfully',
@@ -68,5 +67,5 @@ export const OverviewController = {
   getAdminOverview,
   getAdminOverviewAnalysis,
   getAdminOverviewData,
-  getAdminOverviewMilestones
+  getAdminOverviewMilestones,
 };

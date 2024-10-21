@@ -26,7 +26,7 @@ const AuthorBioSchema = z.object({
 const PublisherSchema = z.object({
   name: z.string().min(1),
   address: z.string().min(1),
-  website: z.string().url().optional(), // Optional and must be a valid URL if provided
+  website: z.string().url().nullable().optional(), // Optional and must be a valid URL if provided
 });
 
 // Additional Info Schema
@@ -47,7 +47,7 @@ const createBookValidation = z.object({
   author: z.string().min(1),
   author_bio: z.string().nullable().optional(),
   category: z.string().min(1),
-  language: z.string().min(1),
+  _language: z.string().min(1),
   print_length: z.number().min(1),
   published_date: z.string().min(1),
   edition: z.string().min(1),
@@ -61,6 +61,11 @@ const createBookValidation = z.object({
   available_stock: z.number(),
 });
 
+
+const deleteMultipleBooksValidation = z.object({
+  booksId:z.array(z.string())
+})
+
 const updateBookValidation = createBookValidation.partial();
 
 const getRecentlyViewedBooksValidations = z.object({
@@ -71,4 +76,5 @@ export const BookValidations = {
   createBookValidation,
   updateBookValidation,
   getRecentlyViewedBooksValidations,
+  deleteMultipleBooksValidation
 };
